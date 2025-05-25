@@ -36,7 +36,7 @@ RUN useradd -m -d ${ANSVIL_USER_HOME} -s /bin/bash -u 1000 -G wheel ${ANSVIL_USE
 
 
 USER ${ANSVIL_USER}
-WORKDIR /home/${ANSVIL_USER}
+WORKDIR ${ANSVIL_USER_HOME}
 
 RUN python3.12 -m venv ${ANSVIL_USER_HOME}/ \
 && source ${ANSVIL_USER_HOME}/bin/activate \

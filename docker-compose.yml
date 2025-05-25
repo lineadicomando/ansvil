@@ -1,12 +1,7 @@
 services:
 
   core:
-    build:
-      context: ./core
-      dockerfile: Dockerfile
-      args:
-        ANSVIL_USER: ${ANSVIL_USER:-ansvil}
-        ANSVIL_USER_HOME: ${ANSVIL_USER_HOME:-/home/ansvil}
+    image: lineadicomando/ansvile-core:${VERSION:-latest}
     container_name: ansvil-core
     hostname: ansvil-core
     depends_on:

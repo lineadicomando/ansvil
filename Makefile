@@ -1,4 +1,4 @@
-.PHONY: default check-env status ps up down start stop restart restart-soft logs build pull init shell help root-shell
+.PHONY: default check-env status ps up down start stop restart restart-soft logs pull init shell help root-shell
 
 DOCKER := $(shell command -v sudo >/dev/null 2>&1 && echo "sudo docker" || echo "docker")
 ANSVIL_USER := $(shell grep 'ARG ANSVIL_USER=' ./core/Dockerfile | cut -d'=' -f2)
@@ -42,10 +42,6 @@ restart-soft: stop start ## Restart services without recreating containers
 logs: ## Show logs from services
 	@echo "> Showing logs..."
 	@$(DOCKER) compose logs -f
-
-build: check-env ## Build Docker Compose services
-	@echo "> Building Docker Compose services..."
-	@$(DOCKER) compose build
 
 pull: check-env ## Pull latest Docker images
 	@echo "> Pulling Docker Compose images..."

@@ -2,3 +2,4 @@ projects
 data
 .env
 Makefile.local
+docker-compose.override.yml
