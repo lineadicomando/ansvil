@@ -3,7 +3,7 @@
 
 > 🇮🇹 [Versione italiana](README.it.md)
 
-# ANSVILs
+# ANSVIL
 
 **ANSVIL** – *The containerized village for Ansible automation*
 
