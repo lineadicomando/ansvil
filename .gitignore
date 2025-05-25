@@ -1,0 +1,4 @@
+projects
+data
+.env
+Makefile.local

@@ -1,0 +1,19 @@
+# /etc/starship.toml
+# https://starship.rs/config/
+
+format = '''
+[┌](bright-green)[\[](bright-green)$all[\]](bright-green)
+[└>](bright-green) '''
+
+[line_break]
+disabled = true
+
+[character]
+disabled = true
+
+[username]
+show_always = true
+format = '[$user]($style) on '
+
+[hostname]
+ssh_only = false
