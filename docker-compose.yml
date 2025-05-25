@@ -1,7 +1,7 @@
 services:
 
   core:
-    image: lineadicomando/ansvile-core:${VERSION:-latest}
+    image: docker.io/lineadicomando/ansvile-core:${VERSION:-latest}
     container_name: ansvil-core
     hostname: ansvil-core
     depends_on:
