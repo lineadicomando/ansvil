@@ -1,3 +1,8 @@
+[![Version](https://img.shields.io/badge/version-v0.1.0--beta-blue)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> 🇬🇧 [English version](README.md).
+
 # ANSVIL
 
 **ANSVIL** – *Il villaggio containerizzato per l’automazione Ansible*
