@@ -1,56 +1,64 @@
 [![Version](https://img.shields.io/badge/version-v0.1.0--beta-blue)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> 🇬🇧 [English version](README.md).
+> 🇬🇧 [English version](README.md)
 
 # ANSVIL
 
 **ANSVIL** – *Il villaggio containerizzato per l’automazione Ansible*
 
-ANSVIL è un container Docker leggero e modulare basato su AlmaLinux, progettato per offrire un ambiente di automazione completo, stabile e portatile per chi lavora con Ansible.  
-Include **Ansible**, **Code-Server (VS Code via browser)** e **Semaphore UI** in un ecosistema preconfigurato e facilmente personalizzabile.
+ANSVIL è un container Docker leggero e modulare basato su **AlmaLinux**, progettato per offrire un ambiente completo, stabile e portatile per l’automazione con **Ansible**.  
+Include:
 
-Che tu stia scrivendo playbook, orchestrando task o semplicemente cercando di sopravvivere all’indentazione dello YAML, ANSVIL è il tuo spazio sicuro per l'automazione.
+- **Ansible**
+- **Code-Server** (VS Code via browser)
+- **Semaphore UI** (interfaccia web per orchestrare task Ansible)
+
+Che tu stia scrivendo playbook, orchestrando task o semplicemente cercando di sopravvivere all’indentazione dello YAML, **ANSVIL è il tuo spazio sicuro per l'automazione**.
 
 ---
 
-## Cosa contiene
+## Contenuto del progetto
 
-- **AlmaLinux 9.x** – sistema base sicuro, stabile e compatibile con RHEL
-- **Ansible** – motore centrale per l’automazione
-- **Code-Server** – Visual Studio Code accessibile via browser
-- **Semaphore UI** – interfaccia web per gestire e pianificare i task Ansible
+- **AlmaLinux 9.x** – base compatibile con RHEL, stabile e sicura  
+- **Ansible** – cuore del sistema di automazione  
+- **Code-Server** – Visual Studio Code accessibile via browser  
+- **Semaphore UI** – frontend per il controllo dei task Ansible  
 
 ---
 
 ## Perché “villaggio”?
 
-ANSVIL nasce come un piccolo ecosistema specializzato dove ogni strumento ha il suo posto: orchestrazione, editing, esecuzione, gestione.  
-Un ambiente unitario, coerente e modulare, pensato per chi vive e lavora quotidianamente con Ansible.
+Il nome nasce da una metafora semplice:  
+come in un villaggio ogni strumento ha il suo ruolo, in ANSVIL ogni componente è pensato per convivere armoniosamente con gli altri.  
+Editing, orchestrazione, esecuzione e gestione: **tutto in un unico ecosistema coeso e modulare**.
 
 ---
 
-## Considerazioni per il deployment
+## Considerazioni sul deployment
 
-ANSVIL utilizza `network_mode: host` per tutti i container. Questo consente ad Ansible, eseguito all’interno del container, di interagire direttamente con la rete dell’host, raggiungendo dispositivi e servizi locali senza configurazioni extra.
+ANSVIL utilizza `network_mode: host` per garantire che **Ansible** possa interagire direttamente con la rete dell’host, semplificando la comunicazione con dispositivi locali.
 
-Tuttavia, questa scelta comporta alcune considerazioni importanti:
+### Attenzione
 
-- **Host dedicato**: la macchina che esegue ANSVIL dovrebbe essere riservata a questo scopo. Evita conflitti con altri servizi attivi.
-- **Porte utilizzate**:
+- **Host dedicato consigliato** – Evita conflitti con altri servizi in ascolto sulle stesse porte.  
+- **Firewall obbligatorio** – Esponi solo le porte strettamente necessarie.  
+- **Sincronizzazione dell’orario (NTP)** – Fondamentale per TLS, logging, pianificazioni.
 
-  - `80` – HTTP (redirect verso HTTPS)
-  - `443` – HTTPS (reverse proxy)
-  - `8080` – Code-server
-  - `3000` – Semaphore UI
-  - `3306` – Database MariaDB/MySQL
+---
 
-- **Firewall necessario**: limita l’esposizione delle porte solo a quelle strettamente necessarie.
-- **Sincronizzazione dell’orario**: assicurati che l’host usi NTP per evitare problemi legati al tempo (es. certificati TLS).
+### Porte utilizzate
 
-> **Sicurezza:** i container girano con privilegi elevati (no rootless o user namespace remapping). Massima flessibilità, ma richiede consapevolezza.
->
-> **Persistenza dati:** `./projects` per i playbook, `./data` per database e configurazioni. Personalizzabili via variabili d’ambiente. Effettua backup regolari.
+| Porta | Uso                        | Note                                       |
+|-------|-----------------------------|--------------------------------------------|
+| `80`  | HTTP                        | Redirect automatico verso HTTPS (`443`)    |
+| `443` | HTTPS (reverse proxy)       | **Unica porta da esporre per accesso web** |
+| `8080`| Code-Server (interno)       | Accessibile solo tramite reverse proxy     |
+| `3000`| Semaphore UI (interno)      | Accessibile solo tramite reverse proxy     |
+| `3306`| MariaDB (interno)           | Accessibile solo dai container             |
+
+**Esporre solo la porta `443`** all’esterno.  
+Tutte le altre porte sono utilizzate **solo all’interno del container** e gestite dal reverse proxy integrato (basato su Nginx).
 
 ---
 
@@ -65,7 +73,7 @@ cp .env.example .env  # configura le variabili d’ambiente
 docker compose up -d
 ````
 
-### Metodo con `make` (più semplice)
+### Metodo con `make` (consigliato)
 
 ```bash
 git clone https://github.com/lineadicomando/ansvil.git
@@ -82,9 +90,43 @@ make help
 
 ---
 
+## Accesso ai servizi
+
+Una volta avviato ANSVIL, puoi accedere all’interfaccia web tramite browser:
+
+https://127.0.0.1 oppure https://localhost
+
+Comparirà una **pagina di benvenuto** con collegamenti diretti a:
+
+* **Code-Server**
+* **Semaphore UI**
+
+### Accesso da altri dispositivi (LAN)
+
+Se l’host è configurato correttamente (hostname, firewall, DNS locale), puoi accedere anche dalla rete locale:
+
+* tramite **hostname locale** (es. `https://ansvil.local`)
+* oppure con **IP privato** (es. `https://192.168.1.42`)
+
+In entrambi i casi, **basta che la porta `443` sia raggiungibile**.
+Non è necessario esporre direttamente le porte `8080` o `3000`.
+
+---
+
+### Credenziali predefinite
+
+| Servizio         | Utente       | Password                   |
+| ---------------- | ------------ | -------------------------- |
+| **Code-Server**  |              | `ansvil` *(solo password)* |
+| **Semaphore UI** | `admin`      | `ansvil`                   |
+
+Puoi modificare tutte le credenziali iniziali tramite il file `.env`.
+
+---
+
 ## Hook di inizializzazione (`entrypoint.d/`)
 
-ANSVIL supporta hook modulari eseguibili in tre momenti chiave del ciclo di vita del container:
+ANSVIL supporta **hook modulari** eseguibili in fasi chiave del ciclo di vita dei container.
 
 ### Struttura delle directory
 
@@ -96,11 +138,11 @@ ANSVIL supporta hook modulari eseguibili in tre momenti chiave del ciclo di vita
 
 ### Eventi disponibili
 
-| Evento  | Momento                                      | Descrizione                                                 |
-| ------- | -------------------------------------------- | ----------------------------------------------------------- |
-| `init`  | Solo al primo avvio del container            | Inizializzazione (es. installazioni, configurazioni, setup) |
-| `start` | A ogni avvio del container                   | Post-avvio dei servizi (es. trigger, healthcheck)           |
-| `exit`  | Alla chiusura del container (SIGTERM/SIGINT) | Pulizia, salvataggio, notifiche finali                      |
+| Evento  | Momento                        | Descrizione                              |
+| ------- | ------------------------------ | ---------------------------------------- |
+| `init`  | Solo al primo avvio            | Setup iniziale, installazioni, bootstrap |
+| `start` | A ogni avvio del container     | Post-avvio, healthcheck, trigger custom  |
+| `exit`  | Alla chiusura (SIGTERM/SIGINT) | Pulizia finale, salvataggi, notifiche    |
 
 ### Convenzione di naming
 
@@ -114,11 +156,12 @@ Esempi:
 * `20-start-healthcheck.sh`
 * `99-exit-cleanup.sh`
 
-Gli script vengono eseguiti in ordine crescente, separatamente per `root` e `user`.
+Gli script sono ordinati ed eseguiti in ordine crescente, per `root` e `user` separatamente.
 
 ### Inizializzazione automatica
 
-Se le directory `/entrypoint.d/root/` o `/entrypoint.d/user/` non esistono, ANSVIL copia automaticamente un template base da `/template/entrypoint.d/`, pronto per essere personalizzato e montato nel volume `/data`.
+Se le directory `entrypoint.d/root/` o `entrypoint.d/user/` mancano, ANSVIL copierà un template base da `/template/entrypoint.d/`.
+Personalizzabile e montabile su `/data`.
 
 ### Esempio: hook user/init
 
@@ -134,13 +177,15 @@ echo ">> [user/init] Installazione iniziale delle collection Ansible"
 
 ## Licenza e componenti open-source
 
-ANSVIL è distribuito sotto [Licenza MIT](LICENSE).
-Include o si connette a software open-source con licenze distinte:
+ANSVIL è distribuito sotto licenza [MIT](LICENSE).
+Utilizza o integra i seguenti componenti open-source:
 
-* **Ansible** – GNU GPL v3
-* **Code-Server** – MIT
-* **Semaphore UI** – MIT
-* **MariaDB** – GNU GPL v2
-* **Nginx** – Licenza tipo BSD
+| Componente   | Licenza    |
+| ------------ | ---------- |
+| Ansible      | GNU GPL v3 |
+| Code-Server  | MIT        |
+| Semaphore UI | MIT        |
+| MariaDB      | GNU GPL v2 |
+| Nginx        | BSD-like   |
 
-Verifica le licenze ufficiali dei singoli componenti per un uso conforme, specialmente in contesti aziendali o di ridistribuzione.
+Verifica le licenze ufficiali per un uso conforme, soprattutto in ambienti aziendali o in caso di ridistribuzione.
