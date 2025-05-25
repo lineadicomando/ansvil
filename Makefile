@@ -56,8 +56,8 @@ init: ## Initialize .env file from .env.example
 		echo "> .env file already exists. No action taken."; \
 	else \
 		cp .env.example .env && echo "> .env file created from .env.example."; \
-		default1=$$(grep "^SEMAPHORE_ADMIN_DEFAULT_PASSWORD=" .env.example | cut -d= -f2-); \
-		default2=$$(grep "^CODE_SERVER_DEFAULT_PASSWORD=" .env.example | cut -d= -f2-); \
+		default1=$$(grep "^SEMAPHORE_ADMIN_DEFAULT_PASSWORD=" .env.example | cut -d= -f2- | cut -d"'" -f2); \
+		default2=$$(grep "^CODE_SERVER_DEFAULT_PASSWORD=" .env.example | cut -d= -f2- | cut -d"'" -f2); \
 		read -p "Enter SEMAPHORE_ADMIN_DEFAULT_PASSWORD [$$default1]: " input1; \
 		SEMAPHORE_PASSWORD=$${input1:-$$default1}; \
 		read -p "Enter CODE_SERVER_DEFAULT_PASSWORD [$$default2]: " input2; \
