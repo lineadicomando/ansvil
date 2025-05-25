@@ -27,14 +27,6 @@ Whether you're writing playbooks, orchestrating tasks, or just trying to survive
 
 ---
 
-## Why “village”?
-
-The name comes from a simple metaphor:  
-just like every tool has its place in a village, in ANSVIL each component is designed to coexist harmoniously with the others.  
-Editing, orchestration, execution, and management: **all in a single cohesive and modular ecosystem**.
-
----
-
 ## Deployment considerations
 
 ANSVIL uses `network_mode: host` to ensure that **Ansible** can interact directly with the host's network, simplifying communication with local devices.
@@ -138,11 +130,11 @@ ANSVIL supports **modular hooks** that run at key points in the container lifecy
 
 ### Available events
 
-| Event   | When it runs                 | Description                                |
-| ------- | ---------------------------- | ------------------------------------------ |
-| `init`  | First launch only            | Initial setup, installation, bootstrap     |
-| `start` | On every container start     | Post-start, health checks, custom triggers |
-| `exit`  | On shutdown (SIGTERM/SIGINT) | Final cleanup, save tasks, notifications   |
+| Event   | When it runs                           | Description                                |
+| ------- | -------------------------------------- | ------------------------------------------ |
+| `init`  | First launch only (container creation) | Initial setup, installation, bootstrap     |
+| `start` | On every container start               | Post-start, health checks, custom triggers |
+| `exit`  | On shutdown (SIGTERM/SIGINT)           | Final cleanup, save tasks, notifications   |
 
 ### Naming convention
 
