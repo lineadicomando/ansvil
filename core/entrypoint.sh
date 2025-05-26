@@ -3,7 +3,7 @@ set -euo pipefail
 
 for role in root user; do
   if [ ! -d "/entrypoint.d/${role}" ] && [ -d "/template/entrypoint.d/${role}" ]; then
-    echo ">> Primo avvio: copia degli hook per ${role}"
+    echo ">> First boot: copying hooks for ${role}"
     mkdir -p "/entrypoint.d/${role}"
     cp -rf "/template/entrypoint.d/${role}" /entrypoint.d/
     chown -R "${ANSVIL_USER}:${ANSVIL_USER}" /entrypoint.d
@@ -16,6 +16,34 @@ if [ ! -f "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh" ] && [ -f "/template/user/bash
   chmod +x "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh"
   chown "${ANSVIL_USER}:${ANSVIL_USER}" "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh"
 fi
+
+# === Function for fix ownership ===
+
+fix_ownership_if_needed() {
+  local path="$1"
+  local target_usergroup="$2"
+
+  # Estrai user e group separati
+  local target_user="${target_usergroup%%:*}"
+  local target_group="${target_usergroup##*:}"
+
+  if [ ! -d "$path" ]; then
+    echo ">> Skipping: directory not found: $path"
+    return
+  fi
+
+  local owner=$(stat -c '%U' "$path")
+  local group=$(stat -c '%G' "$path")
+
+  if [ "$owner" != "$target_user" ] || [ "$group" != "$target_group" ]; then
+    echo ">> Fixing ownership of: $path"
+    chown -R "${target_user}:${target_group}" "$path"
+  else
+    echo ">> Ownership OK: $path ($owner:$group)"
+  fi
+}
+
+
 
 # === Function: Wait for MariaDB to be ready ===
 wait_for_mariadb() {
@@ -139,11 +167,11 @@ EOF
 fi
 
 # === Fix ownership ===
-chown -R "${ANSVIL_USER}:${ANSVIL_USER}" \
-  "${ANSVIL_USER_HOME}/.config" \
-  "${ANSVIL_USER_HOME}/.bashrc.d" \
-  "${ANSVIL_PROJECTS_PATH}"
-
+fix_ownership_if_needed "${ANSVIL_PROJECTS_PATH}" "${ANSVIL_USER}:${ANSVIL_USER}"
+fix_ownership_if_needed "${ANSVIL_USER_HOME}/.ansible" "${ANSVIL_USER}:${ANSVIL_USER}"
+fix_ownership_if_needed "${ANSVIL_USER_HOME}/.local" "${ANSVIL_USER}:${ANSVIL_USER}"
+fix_ownership_if_needed "${ANSVIL_USER_HOME}/.config" "${ANSVIL_USER}:${ANSVIL_USER}"
+fix_ownership_if_needed "${ANSVIL_USER_HOME}/.bashrc.d" "${ANSVIL_USER}:${ANSVIL_USER}"
 
 # === Signal handling ===
 _term() {

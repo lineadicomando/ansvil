@@ -11,6 +11,7 @@ services:
       - ${ANSVIL_PROJECTS_VOLUME_PATH}:${ANSVIL_PROJECTS_PATH}:z
       - ${ANSVIL_DATA_VOLUME_PATH}/entrypoint.d:/entrypoint.d:z
       - ${ANSVIL_DATA_VOLUME_PATH}/ansvil/bashrc.d:/home/ansvil/.bashrc.d:z
+      - ${ANSVIL_DATA_VOLUME_PATH}/ansvil/local/share/code-server:/home/ansvil/.local/share/code-server:z
     entrypoint: [ "/bin/bash", "/entrypoint.sh" ]
     environment:
       - ANSVIL_USER=ansvil
