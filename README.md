@@ -3,18 +3,18 @@
 
 > 🇮🇹 [Versione italiana](README.it.md)
 
-# ANSVIL
+# Ansvil
 
-**ANSVIL** – *The containerized village for Ansible automation*
+**Ansvil** – *The containerized village for Ansible automation*
 
-ANSVIL is a lightweight and modular Docker container based on **AlmaLinux**, designed to provide a complete, stable, and portable environment for **Ansible** automation.  
+Ansvil is a lightweight and modular Docker container based on **AlmaLinux**, designed to provide a complete, stable, and portable environment for **Ansible** automation.  
 It includes:
 
 - **Ansible**
 - **Code-Server** (VS Code via browser)
 - **Semaphore UI** (web interface for orchestrating Ansible tasks)
 
-Whether you're writing playbooks, orchestrating tasks, or just trying to survive YAML indentation, **ANSVIL is your safe space for automation**.
+Whether you're writing playbooks, orchestrating tasks, or just trying to survive YAML indentation, **Ansvil is your safe space for automation**.
 
 ---
 
@@ -29,7 +29,7 @@ Whether you're writing playbooks, orchestrating tasks, or just trying to survive
 
 ## Deployment considerations
 
-ANSVIL uses `network_mode: host` to ensure that **Ansible** can interact directly with the host's network, simplifying communication with local devices.
+Ansvil uses `network_mode: host` to ensure that **Ansible** can interact directly with the host's network, simplifying communication with local devices.
 
 ### Warning
 
@@ -84,7 +84,7 @@ make help
 
 ## Accessing the services
 
-Once ANSVIL is up and running, you can access the web interface via browser:
+Once Ansvil is up and running, you can access the web interface via browser:
 
 [https://127.0.0.1](https://127.0.0.1) or [https://localhost](https://localhost)
 
@@ -118,7 +118,7 @@ You can change all initial credentials via the `.env` file.
 
 ## Initialization hooks (`entrypoint.d/`)
 
-ANSVIL supports **modular hooks** that run at key points in the container lifecycle.
+Ansvil supports **modular hooks** that run at key points in the container lifecycle.
 
 ### Directory structure
 
@@ -152,7 +152,7 @@ Scripts are sorted and executed in ascending order, separately for `root` and `u
 
 ### Automatic initialization
 
-If the `entrypoint.d/root/` or `entrypoint.d/user/` directories are missing, ANSVIL will copy a default template from `/template/entrypoint.d/`.
+If the `entrypoint.d/root/` or `entrypoint.d/user/` directories are missing, Ansvil will copy a default template from `/template/entrypoint.d/`.
 This is customizable and can be mounted at `/data`.
 
 ### Example: user/init hook
@@ -169,7 +169,7 @@ echo ">> [user/init] Initial installation of Ansible collections"
 
 ## License and open-source components
 
-ANSVIL is released under the [MIT](LICENSE) license.
+Ansvil is released under the [MIT](LICENSE) license.
 It uses or integrates the following open-source components:
 
 | Component    | License    |
