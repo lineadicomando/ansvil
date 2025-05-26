@@ -3,7 +3,7 @@ set -euo pipefail
 
 for role in root user; do
   if [ ! -d "/entrypoint.d/${role}" ] && [ -d "/template/entrypoint.d/${role}" ]; then
-    echo ">> First boot: copying hooks for ${role}"
+    echo "[Entrypoint] >> First boot: copying hooks for ${role}"
     mkdir -p "/entrypoint.d/${role}"
     cp -rf "/template/entrypoint.d/${role}" /entrypoint.d/
     chown -R "${ANSVIL_USER}:${ANSVIL_USER}" /entrypoint.d
@@ -17,34 +17,6 @@ if [ ! -f "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh" ] && [ -f "/template/user/bash
   chown "${ANSVIL_USER}:${ANSVIL_USER}" "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh"
 fi
 
-# === Function for fix ownership ===
-
-fix_ownership_if_needed() {
-  local path="$1"
-  local target_usergroup="$2"
-
-  # Estrai user e group separati
-  local target_user="${target_usergroup%%:*}"
-  local target_group="${target_usergroup##*:}"
-
-  if [ ! -d "$path" ]; then
-    echo ">> Skipping: directory not found: $path"
-    return
-  fi
-
-  local owner=$(stat -c '%U' "$path")
-  local group=$(stat -c '%G' "$path")
-
-  if [ "$owner" != "$target_user" ] || [ "$group" != "$target_group" ]; then
-    echo ">> Fixing ownership of: $path"
-    chown -R "${target_user}:${target_group}" "$path"
-  else
-    echo ">> Ownership OK: $path ($owner:$group)"
-  fi
-}
-
-
-
 # === Function: Wait for MariaDB to be ready ===
 wait_for_mariadb() {
   local host="${1:-127.0.0.1}"
@@ -54,14 +26,14 @@ wait_for_mariadb() {
   local max_retries="${5:-30}"
   local retry_interval="${6:-2}"
 
-  echo ">> Waiting for MariaDB at $host:$port (user: $user)..."
+  echo "[Entrypoint] >> Waiting for MariaDB at $host:$port (user: $user)..."
 
   for ((i=1; i<=max_retries; i++)); do
     if mysqladmin ping -h"$host" -P"$port" -u"$user" -p"$password" --silent > /dev/null 2>&1; then
-      echo ">> MariaDB is up and running."
+      echo "[Entrypoint] >> MariaDB is up and running."
       return 0
     fi
-    echo ">> Attempt $i/$max_retries: MariaDB not ready, retrying in $retry_interval seconds..."
+    echo "[Entrypoint] >> Attempt $i/$max_retries: MariaDB not ready, retrying in $retry_interval seconds..."
     sleep "$retry_interval"
   done
 
@@ -78,7 +50,7 @@ run_entrypoint_hooks() {
 
   for f in "$dir"/*-"$stage"-*.sh; do
     [ -f "$f" ] || continue
-    echo ">> [$stage/$mode] Executing: $f"
+    echo "[Entrypoint] >> [$stage/$mode] Executing: $f"
 
     case "$mode" in
       root)
@@ -96,7 +68,7 @@ run_entrypoint_hooks init user "/.firstboot-init-user.done"
 
 # === Ensure project directory exists ===
 if [[ ! -d "${ANSVIL_PROJECTS_PATH}" ]]; then
-  echo ">> Creating project directory: ${ANSVIL_PROJECTS_PATH}"
+  echo "[Entrypoint] >> Creating project directory: ${ANSVIL_PROJECTS_PATH}"
   mkdir -p "${ANSVIL_PROJECTS_PATH}"
 fi
 
@@ -106,7 +78,7 @@ CS_CONFIG_DIR="${ANSVIL_USER_HOME}/.config/code-server"
 CS_CONFIG_FILE="${CS_CONFIG_DIR}/config.yaml"
 
 if [[ ! -f "$CS_CONFIG_FILE" ]]; then
-  echo ">> Generating code-server config file"
+  echo "[Entrypoint] >> Generating code-server config file"
   HASHED_PASSWORD=$(echo -n "${CODE_SERVER_DEFAULT_PASSWORD}" | argon2 --encode | grep '^Encoded:' | awk '{print $2}')
   if [[ -z "${HASHED_PASSWORD}" ]]; then
     echo "ERROR: Password hashing failed"
@@ -122,15 +94,17 @@ EOF
 
   chown "${ANSVIL_USER}:${ANSVIL_USER}" "${CS_CONFIG_FILE}"
   chmod 600 "${CS_CONFIG_FILE}"
-  echo ">> Code-server config created: ${CS_CONFIG_FILE}"
+  echo "[Entrypoint] >> Code-server config created: ${CS_CONFIG_FILE}"
+  
 fi
 
 # === Semaphore configuration ===
 SM_CONFIG_DIR="${ANSVIL_USER_HOME}/.config/semaphore"
 SM_CONFIG_FILE="${SM_CONFIG_DIR}/config.json"
 
-if [[ ! -f "${SM_CONFIG_FILE}" ]]; then
-  echo ">> Creating Semaphore config file"
+if [ ! -f "${SM_CONFIG_FILE}" ]; then
+
+  echo "[Entrypoint] >> Semaphore config file not found, creating it ${SM_CONFIG_FILE}"
 
   mkdir -p "${SM_CONFIG_DIR}"
 
@@ -154,32 +128,29 @@ EOF
   # Wait for MariaDB to be available
   wait_for_mariadb "${SEMAPHORE_DB_HOST}" "${SEMAPHORE_DB_USER}" "${SEMAPHORE_DB_PASS}" "${SEMAPHORE_DB_PORT}" 30 2 || exit 1
 
-  echo ">> Running Semaphore database migrations"
+  echo "[Entrypoint] >> Running Semaphore database migrations"
   semaphore migrate --config "${SM_CONFIG_FILE}"
 
-  echo ">> Creating Semaphore admin user"
+  echo "[Entrypoint] >> Creating Semaphore admin user"
+  
   semaphore user add --admin \
     --login "${SEMAPHORE_ADMIN_USER}" \
     --password "${SEMAPHORE_ADMIN_DEFAULT_PASSWORD}" \
     --name "${SEMAPHORE_ADMIN_NAME}" \
     --email "${SEMAPHORE_ADMIN_EMAIL}" \
     --config "${SM_CONFIG_FILE}"
-fi
 
-# === Fix ownership ===
-fix_ownership_if_needed "${ANSVIL_PROJECTS_PATH}" "${ANSVIL_USER}:${ANSVIL_USER}"
-fix_ownership_if_needed "${ANSVIL_USER_HOME}/.ansible" "${ANSVIL_USER}:${ANSVIL_USER}"
-fix_ownership_if_needed "${ANSVIL_USER_HOME}/.local" "${ANSVIL_USER}:${ANSVIL_USER}"
-fix_ownership_if_needed "${ANSVIL_USER_HOME}/.config" "${ANSVIL_USER}:${ANSVIL_USER}"
-fix_ownership_if_needed "${ANSVIL_USER_HOME}/.bashrc.d" "${ANSVIL_USER}:${ANSVIL_USER}"
+else
+  echo "[Entrypoint] >> Semaphore config file already exists: ${SM_CONFIG_FILE}"
+fi
 
 # === Signal handling ===
 _term() {
 
-  echo ">> Caught SIGTERM, stopping services..."
+  echo "[Entrypoint] >> Caught SIGTERM, stopping services..."
   kill -TERM "${CODE_SERVER_PID}" "${SEMAPHORE_PID}" 2>/dev/null
   wait "${CODE_SERVER_PID}" "${SEMAPHORE_PID}"
-  echo ">> All services stopped"
+  echo "[Entrypoint] >> All services stopped"
 
   run_entrypoint_hooks exit root
   run_entrypoint_hooks exit user
@@ -192,12 +163,13 @@ trap _term SIGTERM SIGINT
 
 # === Start services ===
 
-echo ">> Starting code-server..."
+echo "[Entrypoint] >> Starting code-server..."
 su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/bin/activate && code-server" &
 # su "${ANSVIL_USER}" -c "code-server" &
 CODE_SERVER_PID=$!
 
-echo ">> Starting semaphore..."
+echo "[Entrypoint] >> Starting semaphore..."
+wait_for_mariadb "${SEMAPHORE_DB_HOST}" "${SEMAPHORE_DB_USER}" "${SEMAPHORE_DB_PASS}" "${SEMAPHORE_DB_PORT}" 30 2 || exit 1
 su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/bin/activate && semaphore server --config ${SM_CONFIG_FILE}" &
 # su "${ANSVIL_USER}" -c "semaphore server --config ${SM_CONFIG_FILE}" &
 SEMAPHORE_PID=$!

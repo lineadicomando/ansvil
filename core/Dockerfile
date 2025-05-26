@@ -1,7 +1,7 @@
 FROM almalinux:9.6
 
 LABEL maintainer="alessandro.gagliano@gmail.com"
-LABEL version="v0.1.2-beta"
+LABEL version="v0.1.3-beta"
 LABEL description="ANSVIL: Ansible Workstation con Semaphore UI e Code-Server su AlmaLinux"
 
 ARG ANSVIL_USER=ansvil
@@ -39,10 +39,10 @@ USER ${ANSVIL_USER}
 WORKDIR ${ANSVIL_USER_HOME}
 
 RUN python3.12 -m venv ${ANSVIL_USER_HOME}/ \
-&& source ${ANSVIL_USER_HOME}/bin/activate \
-&& pip install --upgrade pip \
-&& pip install ansible ansible-lint ansible-creator \
-;
+    && source ${ANSVIL_USER_HOME}/bin/activate \
+    && pip install --upgrade pip \
+    && pip install ansible ansible-lint ansible-creator \
+    ;
 
 COPY user/bashrc.d/venv.sh ${ANSVIL_USER_HOME}/.bashrc.d/venv.sh
 
@@ -54,7 +54,7 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 RUN curl -L https://github.com/ansible-semaphore/semaphore/releases/download/v${SEMAPHORE_VER}/semaphore_${SEMAPHORE_VER}_linux_amd64.tar.gz \
     | tar -xz && \
     mv semaphore /usr/local/bin/semaphore
-    
+
 COPY entrypoint.sh /entrypoint.sh
 COPY user /template/user
 COPY entrypoint.d /template/entrypoint.d
