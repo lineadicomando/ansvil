@@ -1,4 +1,4 @@
-.PHONY: default check-env status ps up down start stop restart restart-soft logs logs-% pull init shell help root-shell
+.PHONY: default check-env status ps up down start stop restart restart-soft logs logs-% pull update init shell help root-shell
 
 DOCKER := $(shell command -v sudo >/dev/null 2>&1 && echo "sudo docker" || echo "docker")
 ANSVIL_USER := $(shell grep 'ARG ANSVIL_USER=' ./core/Dockerfile | cut -d'=' -f2)
@@ -50,6 +50,8 @@ logs-%: ## Show logs from a specific service
 pull: check-env ## Pull latest Docker images
 	@echo "> Pulling Docker Compose images..."
 	@$(DOCKER) compose pull
+
+update: pull restart ## Pull and restart all services
 
 init: ## Initialize .env file from .env.example
 	@if [ ! -f .env.example ]; then \
