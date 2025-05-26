@@ -1,39 +1,92 @@
 #!/bin/bash
 set -euo pipefail
 
-# === Function for fix ownership ===
+# === Validate required env vars ===
+: "${ANSVIL_USER:?Environment variable ANSVIL_USER not set}"
+: "${ANSVIL_USER_HOME:?Environment variable ANSVIL_USER_HOME not set}"
+: "${ANSVIL_PROJECTS_PATH:?Environment variable ANSVIL_PROJECTS_PATH not set}"
+
+log() {
+  echo "[Entrypoint] >> $*"
+}
 
 fix_ownership_if_needed() {
   local path="$1"
   local target_usergroup="$2"
-  echo "[Entrypoint] >> Check ownership for: $path"
 
-  # Estrai user e group separati
-  local target_user="${target_usergroup%%:*}"
-  local target_group="${target_usergroup##*:}"
+  log "Checking ownership for: $path"
 
-  if [ ! -d "$path" ]; then
-    echo "[Entrypoint] >> Skipping: directory not found: $path"
+  if [ ! -e "$path" ]; then
+    log "Skipping (not found): $path"
     return
   fi
 
-  local owner=$(stat -c '%U' "$path")
-  local group=$(stat -c '%G' "$path")
+  local owner group
+  owner=$(stat -c '%U' "$path")
+  group=$(stat -c '%G' "$path")
+  local target_user="${target_usergroup%%:*}"
+  local target_group="${target_usergroup##*:}"
 
-  if [ "$owner" != "$target_user" ] || [ "$group" != "$target_group" ]; then
-    echo "[Entrypoint] >> Fixing ownership of: $path"
+  if [[ "$owner" != "$target_user" || "$group" != "$target_group" ]]; then
+    log "Fixing ownership of: $path"
     chown -R "${target_user}:${target_group}" "$path"
   else
-    echo "[Entrypoint] >> Ownership OK: $path ($owner:$group)"
+    log "Ownership OK: $path ($owner:$group)"
   fi
 }
 
-fix_ownership_if_needed "${ANSVIL_PROJECTS_PATH}" "${ANSVIL_USER}:${ANSVIL_USER}"
-fix_ownership_if_needed "${ANSVIL_USER_HOME}/.ansible" "${ANSVIL_USER}:${ANSVIL_USER}"
-fix_ownership_if_needed "${ANSVIL_USER_HOME}/.local" "${ANSVIL_USER}:${ANSVIL_USER}"
-fix_ownership_if_needed "${ANSVIL_USER_HOME}/.config" "${ANSVIL_USER}:${ANSVIL_USER}"
-fix_ownership_if_needed "${ANSVIL_USER_HOME}/.bashrc.d" "${ANSVIL_USER}:${ANSVIL_USER}"
+create_dir_and_link() {
+  local src="$1" dest="$2" owner="$3" mode="$4"
 
+  mkdir -p "$src"
+  chown "$owner" "$src"
+  chmod "$mode" "$src"
 
-echo "[Entrypoint] Eseguo entrypoint.sh originale"
+  local dest_dir
+  dest_dir="$(dirname "$dest")"
+  mkdir -p "$dest_dir"
+  chown "$owner" "$dest_dir"
+  chmod "$mode" "$dest_dir"
+
+  ln -sfn "$src" "$dest"
+}
+
+create_file_and_link() {
+  local src="$1" dest="$2" owner="$3" mode="$4"
+
+  touch "$src"
+  chown "$owner" "$src"
+  chmod "$mode" "$src"
+
+  ln -sfn "$src" "$dest"
+}
+
+log "Checking Data Folder"
+ANSVIL_USER_DATA_DIR="${ANSVIL_USER_HOME}/.data"
+if [ ! -d "$ANSVIL_USER_DATA_DIR" ]; then
+  log "Missing data directory: $ANSVIL_USER_DATA_DIR"
+  exit 1
+fi
+
+log "Setup config for $ANSVIL_USER"
+create_dir_and_link "${ANSVIL_USER_DATA_DIR}/.config" "${ANSVIL_USER_HOME}/.config" "${ANSVIL_USER}:${ANSVIL_USER}" 755
+
+log "Setup .bash_history"
+create_file_and_link "${ANSVIL_USER_DATA_DIR}/.bash_history" "${ANSVIL_USER_HOME}/.bash_history" "${ANSVIL_USER}:${ANSVIL_USER}" 600
+
+log "Setup code-server data"
+create_dir_and_link "${ANSVIL_USER_DATA_DIR}/.local/share/code-server" "${ANSVIL_USER_HOME}/.local/share/code-server" "${ANSVIL_USER}:${ANSVIL_USER}" 755
+
+# Ownership fix
+for path in \
+  "$ANSVIL_PROJECTS_PATH" \
+  "$ANSVIL_USER_HOME/.data" \
+  "$ANSVIL_USER_HOME/.local" \
+  "$ANSVIL_USER_HOME/.config" \
+  "$ANSVIL_USER_HOME/.bashrc.d" \
+  "$ANSVIL_USER_HOME/.bash_history"; do
+    fix_ownership_if_needed "$path" "${ANSVIL_USER}:${ANSVIL_USER}"
+done
+
+log "Running original entrypoint"
 /entrypoint.sh "$@"

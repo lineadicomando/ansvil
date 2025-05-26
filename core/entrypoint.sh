@@ -1,21 +1,28 @@
 #!/bin/bash
 set -euo pipefail
 
-for role in root user; do
-  if [ ! -d "/entrypoint.d/${role}" ] && [ -d "/template/entrypoint.d/${role}" ]; then
-    echo "[Entrypoint] >> First boot: copying hooks for ${role}"
-    mkdir -p "/entrypoint.d/${role}"
-    cp -rf "/template/entrypoint.d/${role}" /entrypoint.d/
-    chown -R "${ANSVIL_USER}:${ANSVIL_USER}" /entrypoint.d
-    find /entrypoint.d/ -type f -exec chmod +x {} \;
-  fi
-done
-
-if [ ! -f "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh" ] && [ -f "/template/user/bashrc.d/venv.sh" ]; then
-  cp -f "/template/user/bashrc.d/venv.sh" "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh"
-  chmod +x "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh"
-  chown "${ANSVIL_USER}:${ANSVIL_USER}" "${ANSVIL_USER_HOME}/.bashrc.d/venv.sh"
+# === Logging utility ===
+if ! declare -f log >/dev/null; then
+  log() {
+    echo "[Entrypoint] >> $*"
+  }
 fi
+
+# === Environment validation ===
+: "${ANSVIL_USER:?ANSVIL_USER not set}"
+: "${ANSVIL_USER_HOME:?ANSVIL_USER_HOME not set}"
+: "${ANSVIL_PROJECTS_PATH:?ANSVIL_PROJECTS_PATH not set}"
+: "${SEMAPHORE_DB_HOST:?}"
+: "${SEMAPHORE_DB_PORT:?}"
+: "${SEMAPHORE_DB_NAME:?}"
+: "${SEMAPHORE_DB_USER:?}"
+: "${SEMAPHORE_DB_PASS:?}"
+: "${SEMAPHORE_ADMIN_USER:?}"
+: "${SEMAPHORE_ADMIN_NAME:?}"
+: "${SEMAPHORE_ADMIN_EMAIL:?}"
+: "${SEMAPHORE_ADMIN_DEFAULT_PASSWORD:?}"
+: "${CODE_SERVER_BIND_ADDR:?}"
+: "${CODE_SERVER_DEFAULT_PASSWORD:?}"
 
 # === Function: Wait for MariaDB to be ready ===
 wait_for_mariadb() {
@@ -26,14 +33,14 @@ wait_for_mariadb() {
   local max_retries="${5:-30}"
   local retry_interval="${6:-2}"
 
-  echo "[Entrypoint] >> Waiting for MariaDB at $host:$port (user: $user)..."
+  log "Waiting for MariaDB at $host:$port (user: $user)..."
 
   for ((i=1; i<=max_retries; i++)); do
     if mysqladmin ping -h"$host" -P"$port" -u"$user" -p"$password" --silent > /dev/null 2>&1; then
-      echo "[Entrypoint] >> MariaDB is up and running."
+      log "MariaDB is up and running."
       return 0
     fi
-    echo "[Entrypoint] >> Attempt $i/$max_retries: MariaDB not ready, retrying in $retry_interval seconds..."
+    log "Attempt $i/$max_retries: MariaDB not ready, retrying in $retry_interval seconds..."
     sleep "$retry_interval"
   done
 
@@ -41,16 +48,17 @@ wait_for_mariadb() {
   return 1
 }
 
+# === Function: Entrypoint Hooks ===
 run_entrypoint_hooks() {
-  local stage="$1"   # init | start | exit
-  local mode="$2"    # root | user
+  local stage="$1"
+  local mode="$2"
   local dir="/entrypoint.d/$mode"
 
   [ -d "$dir" ] || return
 
   for f in "$dir"/*-"$stage"-*.sh; do
     [ -f "$f" ] || continue
-    echo "[Entrypoint] >> [$stage/$mode] Executing: $f"
+    log "[$stage/$mode] Executing: $f"
 
     case "$mode" in
       root)
@@ -63,22 +71,33 @@ run_entrypoint_hooks() {
   done
 }
 
-run_entrypoint_hooks init root "/.firstboot-init-root.done"
-run_entrypoint_hooks init user "/.firstboot-init-user.done"
+# === Set entrypoint.d ===
+for role in root user; do
+  if [ ! -d "/entrypoint.d/${role}" ] && [ -d "/template/entrypoint.d/${role}" ]; then
+    log "First boot: copying hooks for ${role}"
+    mkdir -p "/entrypoint.d/${role}"
+    cp -rf "/template/entrypoint.d/${role}" /entrypoint.d/
+    chown -R "${ANSVIL_USER}:${ANSVIL_USER}" /entrypoint.d
+    find /entrypoint.d/ -type f -exec chmod +x {} \;
+  fi
+done
+
+run_entrypoint_hooks init root
+run_entrypoint_hooks init user
 
 # === Ensure project directory exists ===
 if [[ ! -d "${ANSVIL_PROJECTS_PATH}" ]]; then
-  echo "[Entrypoint] >> Creating project directory: ${ANSVIL_PROJECTS_PATH}"
+  log "Creating project directory: ${ANSVIL_PROJECTS_PATH}"
   mkdir -p "${ANSVIL_PROJECTS_PATH}"
 fi
 
-# === Code Server configuration ===
+# === Start Code Server configuration ===
 CS_AUTH_TYPE="password"
 CS_CONFIG_DIR="${ANSVIL_USER_HOME}/.config/code-server"
 CS_CONFIG_FILE="${CS_CONFIG_DIR}/config.yaml"
 
 if [[ ! -f "$CS_CONFIG_FILE" ]]; then
-  echo "[Entrypoint] >> Generating code-server config file"
+  log "Generating code-server config file"
   HASHED_PASSWORD=$(echo -n "${CODE_SERVER_DEFAULT_PASSWORD}" | argon2 --encode | grep '^Encoded:' | awk '{print $2}')
   if [[ -z "${HASHED_PASSWORD}" ]]; then
     echo "ERROR: Password hashing failed"
@@ -90,24 +109,23 @@ if [[ ! -f "$CS_CONFIG_FILE" ]]; then
 bind-addr: ${CODE_SERVER_BIND_ADDR}
 auth: ${CS_AUTH_TYPE}
 hashed-password: "${HASHED_PASSWORD}"
+disable-telemetry: true
+cert: false
 EOF
 
   chown "${ANSVIL_USER}:${ANSVIL_USER}" "${CS_CONFIG_FILE}"
   chmod 600 "${CS_CONFIG_FILE}"
-  echo "[Entrypoint] >> Code-server config created: ${CS_CONFIG_FILE}"
-  
+  log "Code-server config created: ${CS_CONFIG_FILE}"
 fi
 
-# === Semaphore configuration ===
+# === Start Semaphore configuration ===
 SM_CONFIG_DIR="${ANSVIL_USER_HOME}/.config/semaphore"
 SM_CONFIG_FILE="${SM_CONFIG_DIR}/config.json"
 
 if [ ! -f "${SM_CONFIG_FILE}" ]; then
-
-  echo "[Entrypoint] >> Semaphore config file not found, creating it ${SM_CONFIG_FILE}"
+  log "Semaphore config file not found, creating it ${SM_CONFIG_FILE}"
 
   mkdir -p "${SM_CONFIG_DIR}"
-
   cat << EOF > "${SM_CONFIG_FILE}"
 {
   "mysql": {
@@ -125,57 +143,52 @@ if [ ! -f "${SM_CONFIG_FILE}" ]; then
 }
 EOF
 
-  # Wait for MariaDB to be available
-  wait_for_mariadb "${SEMAPHORE_DB_HOST}" "${SEMAPHORE_DB_USER}" "${SEMAPHORE_DB_PASS}" "${SEMAPHORE_DB_PORT}" 30 2 || exit 1
+  wait_for_mariadb "$SEMAPHORE_DB_HOST" "$SEMAPHORE_DB_USER" "$SEMAPHORE_DB_PASS" "$SEMAPHORE_DB_PORT" 30 2 || exit 1
+else
+  log "Semaphore config file already exists: ${SM_CONFIG_FILE}"
+fi
 
-  echo "[Entrypoint] >> Running Semaphore database migrations"
-  semaphore migrate --config "${SM_CONFIG_FILE}"
+log "Running Semaphore database migrations"
+wait_for_mariadb "$SEMAPHORE_DB_HOST" "$SEMAPHORE_DB_USER" "$SEMAPHORE_DB_PASS" "$SEMAPHORE_DB_PORT" 30 2 || exit 1
+semaphore migrate --config "${SM_CONFIG_FILE}"
 
-  echo "[Entrypoint] >> Creating Semaphore admin user"
-  
+log "Checking if Semaphore admin user '${SEMAPHORE_ADMIN_USER}' exists..."
+if ! semaphore user list --config "${SM_CONFIG_FILE}" | grep -q "^${SEMAPHORE_ADMIN_USER}$"; then
+  log "Creating Semaphore admin user '${SEMAPHORE_ADMIN_USER}'"
   semaphore user add --admin \
     --login "${SEMAPHORE_ADMIN_USER}" \
     --password "${SEMAPHORE_ADMIN_DEFAULT_PASSWORD}" \
     --name "${SEMAPHORE_ADMIN_NAME}" \
     --email "${SEMAPHORE_ADMIN_EMAIL}" \
     --config "${SM_CONFIG_FILE}"
-
 else
-  echo "[Entrypoint] >> Semaphore config file already exists: ${SM_CONFIG_FILE}"
+  log "Admin user '${SEMAPHORE_ADMIN_USER}' already exists, skipping creation"
 fi
 
 # === Signal handling ===
 _term() {
-
-  echo "[Entrypoint] >> Caught SIGTERM, stopping services..."
+  log "Caught SIGTERM, stopping services..."
   kill -TERM "${CODE_SERVER_PID}" "${SEMAPHORE_PID}" 2>/dev/null
   wait "${CODE_SERVER_PID}" "${SEMAPHORE_PID}"
-  echo "[Entrypoint] >> All services stopped"
+  log "All services stopped"
 
   run_entrypoint_hooks exit root
   run_entrypoint_hooks exit user
-
   exit 0
-
 }
-
 trap _term SIGTERM SIGINT
 
 # === Start services ===
-
-echo "[Entrypoint] >> Starting code-server..."
-su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/bin/activate && code-server" &
-# su "${ANSVIL_USER}" -c "code-server" &
+log "Starting code-server..."
+su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/bin/activate && code-server ${ANSVIL_PROJECTS_PATH}" &
 CODE_SERVER_PID=$!
 
-echo "[Entrypoint] >> Starting semaphore..."
-wait_for_mariadb "${SEMAPHORE_DB_HOST}" "${SEMAPHORE_DB_USER}" "${SEMAPHORE_DB_PASS}" "${SEMAPHORE_DB_PORT}" 30 2 || exit 1
+log "Starting semaphore..."
+wait_for_mariadb "$SEMAPHORE_DB_HOST" "$SEMAPHORE_DB_USER" "$SEMAPHORE_DB_PASS" "$SEMAPHORE_DB_PORT" 30 2 || exit 1
 su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/bin/activate && semaphore server --config ${SM_CONFIG_FILE}" &
-# su "${ANSVIL_USER}" -c "semaphore server --config ${SM_CONFIG_FILE}" &
 SEMAPHORE_PID=$!
 
 run_entrypoint_hooks start root
 run_entrypoint_hooks start user
 
-# === Wait for both processes ===
 wait "$CODE_SERVER_PID" "$SEMAPHORE_PID"
