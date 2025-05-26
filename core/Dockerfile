@@ -1,7 +1,7 @@
 FROM almalinux:9.6
 
 LABEL maintainer="alessandro.gagliano@gmail.com"
-LABEL version="v0.1.0-beta"
+LABEL version="v0.1.1-beta"
 LABEL description="ANSVIL: Ansible Workstation con Semaphore UI e Code-Server su AlmaLinux"
 
 ARG ANSVIL_USER=ansvil

@@ -139,8 +139,11 @@ EOF
 fi
 
 # === Fix ownership ===
-chown -R "${ANSVIL_USER}:${ANSVIL_USER}" "${ANSVIL_USER_HOME}"
-chown -R "${ANSVIL_USER}:${ANSVIL_USER}" "${ANSVIL_PROJECTS_PATH}"
+chown -R "${ANSVIL_USER}:${ANSVIL_USER}" \
+  "${ANSVIL_USER_HOME}/.config" \
+  "${ANSVIL_USER_HOME}/.bashrc.d" \
+  "${ANSVIL_PROJECTS_PATH}"
+
 
 # === Signal handling ===
 _term() {
