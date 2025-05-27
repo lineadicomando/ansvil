@@ -72,6 +72,20 @@ if [ ! -d "$ANSVIL_USER_DATA_DIR" ]; then
   exit 1
 fi
 
+
+# === Ownership fix ===
+# for path in \
+#   "$ANSVIL_PROJECTS_PATH" \
+#   "$ANSVIL_USER_HOME/.data" \
+#   "$ANSVIL_USER_HOME/.local" \
+#   "$ANSVIL_USER_HOME/.config" \
+#   "$ANSVIL_USER_HOME/.bashrc.d" \
+#   "$ANSVIL_USER_HOME/.bash_history"; do
+#     fix_ownership_if_needed "$path" "${ANSVIL_USER}:${ANSVIL_USER}"
+# done
+
+fix_ownership_if_needed "$ANSVIL_USER_HOME/.data" "${ANSVIL_USER}:${ANSVIL_USER}"
+
 for data_dir in \
   ".local/share/code-server" \
   ".ssh" \
@@ -88,17 +102,5 @@ for data_file in \
 done
 
 
-
-# === Ownership fix ===
-for path in \
-  "$ANSVIL_PROJECTS_PATH" \
-  "$ANSVIL_USER_HOME/.data" \
-  "$ANSVIL_USER_HOME/.local" \
-  "$ANSVIL_USER_HOME/.config" \
-  "$ANSVIL_USER_HOME/.bashrc.d" \
-  "$ANSVIL_USER_HOME/.bash_history"; do
-    fix_ownership_if_needed "$path" "${ANSVIL_USER}:${ANSVIL_USER}"
-done
-
 log "Running original entrypoint"
-/entrypoint.sh "$@"
+/entrypoint.sh
