@@ -81,6 +81,7 @@ done
 
 
 for data_file in \
+  ".git-credentials" \
   ".gitconfig" \
   ".bash_history"; do
     create_file_and_link "${ANSVIL_USER_DATA_DIR}/${data_file}" "${ANSVIL_USER_HOME}/${data_file}" "${ANSVIL_USER}:${ANSVIL_USER}" 600
