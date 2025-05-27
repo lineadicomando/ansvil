@@ -38,6 +38,8 @@ fix_ownership_if_needed() {
 create_dir_and_link() {
   local src="$1" dest="$2" owner="$3" mode="$4"
 
+  log "Setup data directory and symlink: ${src} -> ${dest}";
+
   mkdir -p "$src"
   chown "$owner" "$src"
   chmod "$mode" "$src"
@@ -53,6 +55,8 @@ create_dir_and_link() {
 
 create_file_and_link() {
   local src="$1" dest="$2" owner="$3" mode="$4"
+  
+  log "Setup data file and symlink: ${src} -> ${dest}";
 
   touch "$src"
   chown "$owner" "$src"
@@ -70,14 +74,19 @@ fi
 
 for data_dir in \
   ".local/share/code-server" \
-  ".gitconfig" \
   ".ssh" \
   ".config"; do
     create_dir_and_link "${ANSVIL_USER_DATA_DIR}/${data_dir}" "${ANSVIL_USER_HOME}/${data_dir}" "${ANSVIL_USER}:${ANSVIL_USER}" 755
 done
 
-log "Setup .bash_history"
-create_file_and_link "${ANSVIL_USER_DATA_DIR}/.bash_history" "${ANSVIL_USER_HOME}/.bash_history" "${ANSVIL_USER}:${ANSVIL_USER}" 600
+
+for data_file in \
+  ".gitconfig" \
+  ".bash_history"; do
+    create_file_and_link "${ANSVIL_USER_DATA_DIR}/${data_file}" "${ANSVIL_USER_HOME}/${data_file}" "${ANSVIL_USER}:${ANSVIL_USER}" 600
+done
+
+
 
 # === Ownership fix ===
 for path in \
