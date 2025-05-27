@@ -1,4 +1,4 @@
 # Python VEnv Activation
-if [ -f ~/bin/activate ]; then
-    source ~/bin/activate
+if [ -f ~/venv/bin/activate ]; then
+    source ~/venv/bin/activate
 fi

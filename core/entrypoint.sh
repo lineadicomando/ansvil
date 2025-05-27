@@ -178,12 +178,12 @@ trap _term SIGTERM SIGINT
 
 # === Start services ===
 log "Starting code-server..."
-su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/bin/activate && code-server ${ANSVIL_PROJECTS_PATH}" &
+su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/venv/bin/activate && code-server ${ANSVIL_PROJECTS_PATH}" &
 CODE_SERVER_PID=$!
 
 log "Starting semaphore..."
 wait_for_mariadb "$SEMAPHORE_DB_HOST" "$SEMAPHORE_DB_USER" "$SEMAPHORE_DB_PASS" "$SEMAPHORE_DB_PORT" 30 2 || exit 1
-su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/bin/activate && semaphore server --config ${SM_CONFIG_FILE}" &
+su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/venv/bin/activate && semaphore server --config ${SM_CONFIG_FILE}" &
 SEMAPHORE_PID=$!
 
 run_entrypoint_hooks start root
