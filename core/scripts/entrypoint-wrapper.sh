@@ -68,16 +68,18 @@ if [ ! -d "$ANSVIL_USER_DATA_DIR" ]; then
   exit 1
 fi
 
-log "Setup config for $ANSVIL_USER"
-create_dir_and_link "${ANSVIL_USER_DATA_DIR}/.config" "${ANSVIL_USER_HOME}/.config" "${ANSVIL_USER}:${ANSVIL_USER}" 755
+for data_dir in \
+  ".local/share/code-server" \
+  ".gitconfig" \
+  ".ssh" \
+  ".config"; do
+    create_dir_and_link "${ANSVIL_USER_DATA_DIR}/${data_dir}" "${ANSVIL_USER_HOME}/${data_dir}" "${ANSVIL_USER}:${ANSVIL_USER}" 755
+done
 
 log "Setup .bash_history"
 create_file_and_link "${ANSVIL_USER_DATA_DIR}/.bash_history" "${ANSVIL_USER_HOME}/.bash_history" "${ANSVIL_USER}:${ANSVIL_USER}" 600
 
-log "Setup code-server data"
-create_dir_and_link "${ANSVIL_USER_DATA_DIR}/.local/share/code-server" "${ANSVIL_USER_HOME}/.local/share/code-server" "${ANSVIL_USER}:${ANSVIL_USER}" 755
-
-# Ownership fix
+# === Ownership fix ===
 for path in \
   "$ANSVIL_PROJECTS_PATH" \
   "$ANSVIL_USER_HOME/.data" \
