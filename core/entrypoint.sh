@@ -2,11 +2,9 @@
 set -euo pipefail
 
 # === Logging utility ===
-if ! declare -f log >/dev/null; then
-  log() {
-    echo "[Entrypoint] >> $*"
-  }
-fi
+log() {
+  echo "[Entrypoint] >> $*"
+}
 
 # === Environment validation ===
 : "${ANSVIL_USER:?ANSVIL_USER not set}"

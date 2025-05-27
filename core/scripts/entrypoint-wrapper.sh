@@ -7,7 +7,7 @@ set -euo pipefail
 : "${ANSVIL_PROJECTS_PATH:?Environment variable ANSVIL_PROJECTS_PATH not set}"
 
 log() {
-  echo "[Entrypoint] >> $*"
+  echo "[Entrypoint-Wrapper] >> $*"
 }
 
 fix_ownership_if_needed() {
