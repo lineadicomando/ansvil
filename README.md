@@ -3,9 +3,11 @@
 
 > 🇮🇹 [Versione italiana](README.it.md)
 
-# Ansvil
+<p align="center">
+  <img src="./front/html/img/logo.svg" alt="Ansvil logo" width="150">
+</p>
 
-**Ansvil** – *The containerized village for Ansible automation*
+# Ansvil
 
 Ansvil is a lightweight and modular Docker container based on **AlmaLinux**, designed to provide a complete, stable, and portable environment for **Ansible** automation.  
 It includes:
