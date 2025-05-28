@@ -1,4 +1,4 @@
-[![Version](https://img.shields.io/badge/version-v0.1.0--beta-blue)](#)
+[![Version](https://img.shields.io/badge/version-v0.1.7--beta-blue)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > 🇮🇹 [Versione italiana](README.it.md)
