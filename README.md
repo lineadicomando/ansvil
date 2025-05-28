@@ -58,15 +58,6 @@ All other ports are used **internally within the container** and managed by the 
 
 ## Quick start
 
-### Manual method (without `make`)
-
-```bash
-git clone https://github.com/lineadicomando/ansvil.git
-cd ansvil
-cp .env.example .env  # configure environment variables
-docker compose up -d
-````
-
 ### `make` method (recommended)
 
 ```bash
@@ -81,6 +72,15 @@ For more available commands:
 ```bash
 make help
 ```
+
+### Manual method (without `make`)
+
+```bash
+git clone https://github.com/lineadicomando/ansvil.git
+cd ansvil
+cp .env.example .env  # configure environment variables
+docker compose up -d
+````
 
 ---
 

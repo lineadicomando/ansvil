@@ -58,15 +58,6 @@ Tutte le altre porte sono utilizzate **solo all’interno del container** e gest
 
 ## Avvio rapido
 
-### Metodo manuale (senza `make`)
-
-```bash
-git clone https://github.com/lineadicomando/ansvil.git
-cd ansvil
-cp .env.example .env  # configura le variabili d’ambiente
-docker compose up -d
-````
-
 ### Metodo con `make` (consigliato)
 
 ```bash
@@ -81,6 +72,15 @@ Per altri comandi disponibili:
 ```bash
 make help
 ```
+
+### Metodo manuale (senza `make`)
+
+```bash
+git clone https://github.com/lineadicomando/ansvil.git
+cd ansvil
+cp .env.example .env  # configura le variabili d’ambiente
+docker compose up -d
+````
 
 ---
 
