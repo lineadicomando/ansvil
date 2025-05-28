@@ -60,14 +60,20 @@ run_entrypoint_hooks() {
 
     case "$mode" in
       root)
-        . "$f"
+        bash "$f"
         ;;
       user)
-        su - "$ANSVIL_USER" -c "bash -c '. \"$f\"'"
+        su - "$ANSVIL_USER" -c "bash '$f'"
         ;;
     esac
+
+    local status=$?
+    if [ $status -ne 0 ]; then
+      log "[$stage/$mode] ERROR: Hook '$f' exited with status $status"
+    fi
   done
 }
+
 
 # === Set entrypoint.d ===
 for role in root user; do
