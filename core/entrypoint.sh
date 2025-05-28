@@ -87,6 +87,7 @@ run_entrypoint_hooks init user
 if [[ ! -d "${ANSVIL_PROJECTS_PATH}" ]]; then
   log "Creating project directory: ${ANSVIL_PROJECTS_PATH}"
   mkdir -p "${ANSVIL_PROJECTS_PATH}"
+  chown "${ANSVIL_USER}:${ANSVIL_USER}" "${ANSVIL_PROJECTS_PATH}"
 fi
 
 # === Start Code Server configuration ===

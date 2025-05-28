@@ -88,15 +88,15 @@ done
 
 # === Ownership fix ===
 for path in \
-  "$ANSVIL_PROJECTS_PATH" \
-  "$ANSVIL_USER_HOME/.data" \
-  "$ANSVIL_USER_HOME/.local" \
-  "$ANSVIL_USER_HOME/.config" \
-  "$ANSVIL_USER_HOME/.bashrc.d" \
-  "$ANSVIL_USER_HOME/.git-credentials" \
-  "$ANSVIL_USER_HOME/.gitconfig" \
-  "$ANSVIL_USER_HOME/.ssh" \
-  "$ANSVIL_USER_HOME/.bash_history"; do
+  "${ANSVIL_PROJECTS_PATH}" \
+  "${ANSVIL_USER_HOME}/.data" \
+  "${ANSVIL_USER_HOME}/.local" \
+  "${ANSVIL_USER_HOME}/.config" \
+  "${ANSVIL_USER_HOME}/.bashrc.d" \
+  "${ANSVIL_USER_HOME}/.git-credentials" \
+  "${ANSVIL_USER_HOME}/.gitconfig" \
+  "${ANSVIL_USER_HOME}/.ssh" \
+  "${ANSVIL_USER_HOME}/.bash_history"; do
     fix_ownership_if_needed "$path" "${ANSVIL_USER}:${ANSVIL_USER}"
 done
 
