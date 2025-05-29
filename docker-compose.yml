@@ -14,12 +14,12 @@ services:
     volumes:
       - ./core/scripts:/scripts:z
       - ${ANSVIL_PROJECTS_VOLUME_PATH}:${ANSVIL_PROJECTS_PATH}:z
-      - ${ANSVIL_DATA_VOLUME_PATH}/ansvil:/home/ansvil/.data:z
+      - ${ANSVIL_DATA_VOLUME_PATH}/ansvil:/ansvil/.data:z
       - ${ANSVIL_DATA_VOLUME_PATH}/entrypoint.d:/entrypoint.d:z
     entrypoint: [ "/bin/bash", "/scripts/entrypoint-wrapper.sh" ]
     environment:
       - ANSVIL_USER=ansvil
-      - ANSVIL_USER_HOME=/home/ansvil
+      - ANSVIL_USER_HOME=/ansvil
       - ANSVIL_PROJECTS_PATH=${ANSVIL_PROJECTS_PATH}
       - CODE_SERVER_BIND_ADDR=${CODE_SERVER_BIND_ADDR}
       - CODE_SERVER_DEFAULT_PASSWORD=${CODE_SERVER_DEFAULT_PASSWORD}
