@@ -46,13 +46,7 @@ chmod 555 "${ANSVIL_USER_HOME}"
 # === Start services ===
 
 routine_start_code_server
-
-log WARN "\CODE_SERVER_PID: ${CODE_SERVER_PID}"
-
-
 routine_start_semaphore_ui
-
-log WARN "\SEMAPHORE_PID: ${SEMAPHORE_PID}"
 
 run_entrypoint_hooks start root
 run_entrypoint_hooks start user

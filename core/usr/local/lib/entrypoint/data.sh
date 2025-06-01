@@ -64,6 +64,7 @@ routine_init_data_folder() {
   for data_dir in \
     ".local/share/code-server" \
     ".ssh" \
+    ".ansible" \
     ".config"; do
       create_dir_and_link "${ANSVIL_USER_DATA_DIR}/${data_dir}" "${ANSVIL_USER_HOME}/${data_dir}" "${ANSVIL_USER}:${ANSVIL_USER}" 755
   done
@@ -79,6 +80,7 @@ routine_init_data_folder() {
   for path in \
     "${ANSVIL_PROJECTS_PATH}" \
     "${ANSVIL_USER_HOME}/.data" \
+    "${ANSVIL_USER_HOME}/.ansible" \
     "${ANSVIL_USER_HOME}/.local" \
     "${ANSVIL_USER_HOME}/.config" \
     "${ANSVIL_USER_HOME}/.bashrc.d" \

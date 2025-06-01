@@ -3,6 +3,7 @@ run_entrypoint_hooks() {
   local stage="$1"
   local mode="$2"
   local dir="/usr/local/entrypoint.d/$mode"
+  local lib_path="/usr/local/lib/entrypoint"
 
   [ -d "$dir" ] || return
 
@@ -16,7 +17,7 @@ run_entrypoint_hooks() {
         source "$f"
         ;;
       user)
-        su - "$ANSVIL_USER" -c "env $(env | grep -E '^(ANSVIL_|SEMAPHORE_)') bash -c 'source /usr/local/lib/entrypoint/common.sh && source \"$f\"'"
+        su - "$ANSVIL_USER" -c "bash -c 'source ${lib_path}/env.sh; source ${lib_path}/common.sh; source \"$f\"'"
         ;;
     esac
 
@@ -29,6 +30,7 @@ run_entrypoint_hooks() {
 
 
 routine_init_hooks() {
+  local lib_path="/usr/local/lib/entrypoint"
   for role in root user; do
     src_dir="/usr/local/share/templates/entrypoint.d/${role}"
     dst_dir="/usr/local/entrypoint.d/${role}"
@@ -52,6 +54,9 @@ routine_init_hooks() {
     fi
   done
   chown -R "${ANSVIL_USER}:${ANSVIL_USER}" /usr/local/entrypoint.d
+  log INFO "Entrypoint env file initialized"
+  env | grep -E '^(ANSVIL_|SEMAPHORE_)' | sed 's/^/export /' > "${lib_path}/env.sh"
+  chmod 644 "${lib_path}/env.sh"
 }
 
 
