@@ -6,7 +6,7 @@ ANSVIL_USER := $(shell grep 'ARG ANSVIL_USER=' ./core/Dockerfile | cut -d'=' -f2
 # Optional: include development-only targets from Makefile.local
 -include Makefile.local
 
-default: up
+default: help
 
 check-env: ## Ensure that the .env file exists and root or sudo is available
 	@test -f .env || { echo "> Missing .env file. Please create it from .env.example"; exit 1; }
@@ -45,7 +45,7 @@ logs: ## Show logs from all services
 
 logs-%: ## Show logs from a specific service
 	@echo "> Showing logs for service '$*'..."
-	@$(DOCKER) compose logs $ -f
+	@$(DOCKER) compose logs -f $*
 
 pull: check-env ## Pull latest Docker images
 	@echo "> Pulling Docker Compose images..."

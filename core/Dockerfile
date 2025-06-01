@@ -1,7 +1,7 @@
 FROM almalinux:9.6
 
 LABEL maintainer="alessandro.gagliano@gmail.com" \
-      version="v0.1.8-beta" \
+      version="v0.1.9-beta" \
       description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
 ARG ANSVIL_USER=ansvil
@@ -18,7 +18,8 @@ dnf -y install epel-release
     dnf -y install sudo mariadb python3.12 procps-ng psmisc tar vim nmap btop htop wget \
                    iproute net-tools dhcping rsync tree tmux git jq unzip iftop ncdu netcat \
                    tcpdump ipcalc iotop-c bzip2 whois pwgen bind-utils nano bash-completion \
-                   policycoreutils-python-utils sshpass argon2 neovim wol libcap arp-scan
+                   policycoreutils-python-utils sshpass argon2 neovim wol libcap arp-scan \
+                   make
     curl -sSL https://getmic.ro | bash && mv micro /usr/bin/
     wget -q -O /tmp/starship.sh https://starship.rs/install.sh
     chmod +x /tmp/starship.sh && /tmp/starship.sh -y
@@ -55,7 +56,8 @@ EOC
 
 USER root
 
-COPY entrypoint.sh /entrypoint.sh
-COPY templates/entrypoint.d /template/entrypoint.d
+COPY usr/local/bin/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY usr/local/lib/entrypoint /usr/local/lib/entrypoint
+COPY usr/local/share/templates/entrypoint.d /usr/local/share/templates/entrypoint.d
 
-CMD ["/bin/bash", "/entrypoint.sh"]
+CMD ["/bin/bash", "/usr/local/bin/entrypoint.sh"]

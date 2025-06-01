@@ -1,5 +1,5 @@
 #!/bin/bash
-echo ">> [user/init] Initial Ansible setup (e.g. install collections or pip packages)"
+log INFO "[user/init] Initial User Setup (e.g. install collections or pip packages)"
 
 # EXAMPLE: install Python packages via pip
 # pip install httpx
