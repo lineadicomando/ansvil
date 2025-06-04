@@ -7,7 +7,7 @@ routine_init_code_server() {
 
   if [[ ! -f "$CS_CONFIG_FILE" ]]; then
     log INFO "Generating code-server config file"
-    HASHED_PASSWORD=$(echo -n "${CODE_SERVER_DEFAULT_PASSWORD}" | argon2 --encode | grep '^Encoded:' | awk '{print $2}')
+    HASHED_PASSWORD=$(echo -n "${CODE_SERVER_DEFAULT_PASSWORD}" | argon2 $(openssl rand -base64 16) | grep '^Encoded:' | awk '{print $2}')
     if [[ -z "${HASHED_PASSWORD}" ]]; then
       die "Password hashing failed"
     fi
