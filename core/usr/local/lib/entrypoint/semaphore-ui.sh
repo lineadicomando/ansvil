@@ -84,7 +84,7 @@ routine_start_semaphore_ui() {
 
   wait_for_mariadb "$SEMAPHORE_DB_HOST" "$SEMAPHORE_DB_USER" "$SEMAPHORE_DB_PASS" "$SEMAPHORE_DB_PORT" 30 2 true || die
 
-  su "${ANSVIL_USER}" -c "source ${ANSVIL_USER_HOME}/venv/bin/activate && semaphore server --config ${SM_CONFIG_FILE}" &
+  su "${ANSVIL_USER}" -c "source /venv/bin/activate && semaphore server --config ${SM_CONFIG_FILE}" &
   SEMAPHORE_PID=$!
 
   # Verifica se il processo è partito

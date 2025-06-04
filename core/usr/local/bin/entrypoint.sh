@@ -28,8 +28,6 @@ routine_init_data_folder
 
 routine_init_hooks
 
-chmod 755 "${ANSVIL_USER_HOME}"
-
 run_entrypoint_hooks init root
 run_entrypoint_hooks init user
 
@@ -40,8 +38,6 @@ routine_init_code_server
 routine_init_semaphore_ui
 
 trap _term SIGTERM SIGINT # defined in hooks.sh
-
-chmod 555 "${ANSVIL_USER_HOME}"
 
 # === Start services ===
 

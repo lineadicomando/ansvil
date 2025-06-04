@@ -1,7 +1,7 @@
 FROM almalinux:9.6
 
 LABEL maintainer="alessandro.gagliano@gmail.com" \
-      version="v0.1.9-beta" \
+      version="v0.1.10-beta" \
       description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
 ARG ANSVIL_USER=ansvil
@@ -32,22 +32,24 @@ dnf -y install epel-release
     # Create ansvil user
     useradd -m -d ${ANSVIL_USER_HOME} -s /bin/bash -u 1000 -G wheel ${ANSVIL_USER}
     echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+    mkdir /venv
+    chown -R ${ANSVIL_USER}:${ANSVIL_USER} /venv
 EOC
 
 USER ${ANSVIL_USER}
 WORKDIR ${ANSVIL_USER_HOME}
 
 RUN <<EOC
-python3.12 -m venv ${ANSVIL_USER_HOME}/venv
-${ANSVIL_USER_HOME}/venv/bin/pip install --upgrade pip
-${ANSVIL_USER_HOME}/venv/bin/pip install ansible ansible-lint ansible-creator
+python3.12 -m venv /venv
+/venv/bin/pip install --upgrade pip
+/venv/bin/pip install ansible ansible-lint ansible-creator
 
 # Append VEnv activation directly into .bashrc
 cat <<EOF >> ${ANSVIL_USER_HOME}/.bashrc
 
 # >>> VEnv activation >>>
-if [ -f ~/venv/bin/activate ]; then
-    source ~/venv/bin/activate
+if [ -f /venv/bin/activate ]; then
+    source /venv/bin/activate
 fi
 # <<< VEnv activation <<<
 EOF
