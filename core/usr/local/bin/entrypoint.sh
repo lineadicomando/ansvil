@@ -4,7 +4,6 @@ set -euo pipefail
 # === Environment validation ===
 : "${ANSVIL_USER:?ANSVIL_USER not set}"
 : "${ANSVIL_USER_HOME:?ANSVIL_USER_HOME not set}"
-: "${ANSVIL_PROJECTS_PATH:?ANSVIL_PROJECTS_PATH not set}"
 : "${SEMAPHORE_DB_HOST:?}"
 : "${SEMAPHORE_DB_PORT:?}"
 : "${SEMAPHORE_DB_NAME:?}"

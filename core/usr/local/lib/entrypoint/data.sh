@@ -54,40 +54,9 @@ create_file_and_link() {
 }
 
 routine_init_data_folder() {
-
   log INFO "Checking Data Folder"
-  ANSVIL_USER_DATA_DIR="${ANSVIL_USER_HOME}/.data"
-  if [ ! -d "$ANSVIL_USER_DATA_DIR" ]; then
-    die "Missing data directory: $ANSVIL_USER_DATA_DIR"
-  fi
-
-  for data_dir in \
-    ".local/share/code-server" \
-    ".ssh" \
-    ".ansible" \
-    ".config"; do
-      create_dir_and_link "${ANSVIL_USER_DATA_DIR}/${data_dir}" "${ANSVIL_USER_HOME}/${data_dir}" "${ANSVIL_USER}:${ANSVIL_USER}" 755
-  done
-
-  for data_file in \
-    ".git-credentials" \
-    ".gitconfig" \
-    ".bash_history"; do
-      create_file_and_link "${ANSVIL_USER_DATA_DIR}/${data_file}" "${ANSVIL_USER_HOME}/${data_file}" "${ANSVIL_USER}:${ANSVIL_USER}" 600
-  done
-
   # === Ownership fix ===
-  for path in \
-    "${ANSVIL_PROJECTS_PATH}" \
-    "${ANSVIL_USER_HOME}/.data" \
-    "${ANSVIL_USER_HOME}/.ansible" \
-    "${ANSVIL_USER_HOME}/.local" \
-    "${ANSVIL_USER_HOME}/.config" \
-    "${ANSVIL_USER_HOME}/.bashrc.d" \
-    "${ANSVIL_USER_HOME}/.git-credentials" \
-    "${ANSVIL_USER_HOME}/.gitconfig" \
-    "${ANSVIL_USER_HOME}/.ssh" \
-    "${ANSVIL_USER_HOME}/.bash_history"; do
+  for path in "${ANSVIL_USER_HOME}"; do
       fix_ownership_if_needed "$path" "${ANSVIL_USER}:${ANSVIL_USER}"
   done
 
