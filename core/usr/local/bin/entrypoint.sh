@@ -18,6 +18,7 @@ set -euo pipefail
 # === Load common functions and routines ===
 source /usr/local/lib/entrypoint/common.sh
 source /usr/local/lib/entrypoint/hooks.sh
+source /usr/local/lib/entrypoint/venv.sh
 source /usr/local/lib/entrypoint/data.sh
 source /usr/local/lib/entrypoint/projects.sh
 source /usr/local/lib/entrypoint/code-server.sh
@@ -26,6 +27,8 @@ source /usr/local/lib/entrypoint/semaphore-ui.sh
 routine_init_data_folder
 
 routine_init_hooks
+
+routine_activate_venv
 
 run_entrypoint_hooks init root
 run_entrypoint_hooks init user

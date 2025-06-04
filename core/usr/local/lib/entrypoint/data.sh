@@ -56,6 +56,14 @@ create_file_and_link() {
 routine_init_data_folder() {
   log INFO "Checking Data Folder"
   # === Ownership fix ===
+  for skel_file in ".bashrc" ".bash_logout" ".bash_profile"; do
+    if [ ! -f "${ANSVIL_USER_HOME}/${skel_file}" ] && [ -f "/etc/skel/${skel_file}" ]; then
+      cp -n /etc/skel/${skel_file} "${ANSVIL_USER_HOME}/${skel_file}"
+      chown "${ANSVIL_USER}:${ANSVIL_USER}" "${ANSVIL_USER_HOME}/${skel_file}"
+      chmod 644 "${ANSVIL_USER_HOME}/${skel_file}"
+    fi
+  done 
+
   for path in "${ANSVIL_USER_HOME}"; do
       fix_ownership_if_needed "$path" "${ANSVIL_USER}:${ANSVIL_USER}"
   done
