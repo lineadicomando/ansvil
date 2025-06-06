@@ -1,6 +1,6 @@
 #!/bin/bash
 
-routine_activate_venv() {
+routine_activate_python_venv() {
 
   log INFO "Activating Python virtual environment"
   
@@ -29,7 +29,7 @@ EOF
     if [ -f /etc/skel/.bashrc ]; then
       cp -n /etc/skel/.bashrc "${bashrc}"
     else
-      echo "# Created by routine_activate_venv" >> "${bashrc}"
+      echo "# Created by routine_activate_python_venv" >> "${bashrc}"
       touch "${bashrc}"
     fi
   fi

@@ -30,7 +30,7 @@ run_entrypoint_hooks() {
 
 
 routine_init_hooks() {
-  local lib_path="/usr/local/lib/entrypoint"
+  # local lib_path="/usr/local/lib/entrypoint"
   for role in root user; do
     src_dir="/usr/local/share/templates/entrypoint.d/${role}"
     dst_dir="/usr/local/entrypoint.d/${role}"
@@ -54,9 +54,9 @@ routine_init_hooks() {
     fi
   done
   chown -R "${ANSVIL_USER}:${ANSVIL_USER}" /usr/local/entrypoint.d
-  log INFO "Entrypoint env file initialized"
-  env | grep -E '^(ANSVIL_|SEMAPHORE_)' | sed 's/^/export /' > "${lib_path}/env.sh"
-  chmod 644 "${lib_path}/env.sh"
+  # log INFO "Entrypoint env file initialized"
+  # env | grep -E '^(ANSVIL_|SEMAPHORE_)' | sed 's/^/export /' > "${lib_path}/env.sh"
+  # chmod 644 "${lib_path}/env.sh"
 }
 
 

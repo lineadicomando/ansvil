@@ -24,7 +24,7 @@ log() {
       ;;
   esac
 
-  echo -e "[Entrypoint] ${color}[$level]\033[0m $*" >&${output_fd}
+  echo -e "${color}[$level]\033[0m $*" >&${output_fd}
 }
 
 

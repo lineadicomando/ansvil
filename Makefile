@@ -78,6 +78,12 @@ shell: check-env ## Enter the container shell as the application user
 	@echo "> Opening container shell as user '$(ANSVIL_USER)'..."
 	@$(DOCKER) compose exec core sudo -u $(ANSVIL_USER) -i bash
 
+chcodpw: check-env ## Change cose-server password
+	@$(DOCKER) compose exec core /usr/local/bin/chcodpw.sh $(ARGS)
+
+chdempw: check-env ## Change Semaphore UI password
+	@$(DOCKER) compose exec core /usr/local/bin/chsempw.sh $(ARGS)
+
 root-shell: check-env ## Enter the root shell of the 'core' container
 	@echo "> Opening container shell..."
 	@$(DOCKER) compose exec core sudo -i

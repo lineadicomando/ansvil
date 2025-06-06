@@ -17,18 +17,36 @@ set -euo pipefail
 
 # === Load common functions and routines ===
 source /usr/local/lib/entrypoint/common.sh
+log INFO "common.sh loaded"
+
 source /usr/local/lib/entrypoint/hooks.sh
-source /usr/local/lib/entrypoint/venv.sh
+log INFO "hooks.sh loaded"
+
+source /usr/local/lib/entrypoint/env.sh
+log INFO "env.sh loaded"
+
+source /usr/local/lib/entrypoint/python_venv.sh
+log INFO "python_venv.sh loaded"
+
 source /usr/local/lib/entrypoint/data.sh
+log INFO "data.sh loaded"
+
 source /usr/local/lib/entrypoint/projects.sh
+log INFO "projects.sh loaded"
+
 source /usr/local/lib/entrypoint/code-server.sh
+log INFO "code-server.sh loaded"
+
 source /usr/local/lib/entrypoint/semaphore-ui.sh
+log INFO "semaphore-ui.sh loaded"
 
 routine_init_data_folder
 
+routine_init_env
+
 routine_init_hooks
 
-routine_activate_venv
+routine_activate_python_venv
 
 run_entrypoint_hooks init root
 run_entrypoint_hooks init user

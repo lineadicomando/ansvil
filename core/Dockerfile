@@ -1,12 +1,12 @@
 FROM almalinux:9.6
 
 LABEL maintainer="alessandro.gagliano@gmail.com" \
-      version="v0.1.10-beta" \
+      version="v0.1.12-beta" \
       description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
 ARG ANSVIL_USER=ansvil
 ARG ANSVIL_USER_HOME=/ansvil
-ENV SEMAPHORE_VER=2.14.10
+ENV SEMAPHORE_VER=2.14.12
 
 COPY etc/profile.d/starship.sh /etc/profile.d/
 COPY etc/profile.d/aliases.sh /etc/profile.d/
@@ -58,7 +58,7 @@ EOC
 
 USER root
 
-COPY usr/local/bin/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY usr/local/bin /usr/local/bin
 COPY usr/local/lib/entrypoint /usr/local/lib/entrypoint
 COPY usr/local/share/templates/entrypoint.d /usr/local/share/templates/entrypoint.d
 

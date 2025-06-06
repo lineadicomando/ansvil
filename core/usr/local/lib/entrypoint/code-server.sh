@@ -26,6 +26,10 @@ routine_init_code_server() {
     log INFO "Code-server config created: ${CS_CONFIG_FILE}"
   fi
 
+  # Set permissions for the Code Server config directory and file
+  chown -R "${ANSVIL_USER}:${ANSVIL_USER}" "${CS_CONFIG_DIR}"
+  chmod 700 "${CS_CONFIG_DIR}"
+  chmod 600 "${CS_CONFIG_FILE}"
 }
 
 

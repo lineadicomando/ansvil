@@ -75,6 +75,12 @@ routine_init_semaphore_ui() {
   else
     log INFO "Admin user '${SEMAPHORE_ADMIN_USER}' already exists, skipping creation"
   fi
+
+  # Set permissions for the Semaphore config directory and file
+  log INFO "Setting permissions for Semaphore config directory and file"
+  chown -R "${ANSVIL_USER}:${ANSVIL_USER}" "${SM_CONFIG_DIR}"
+  chmod 700 "${SM_CONFIG_DIR}"
+  chmod 600 "${SM_CONFIG_FILE}"
 }
 
 
