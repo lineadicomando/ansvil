@@ -48,14 +48,14 @@ routine_init_hooks
 
 routine_activate_python_venv
 
-run_entrypoint_hooks init root
-run_entrypoint_hooks init user
-
 routine_init_projects_folder
 
 routine_init_code_server
 
 routine_init_semaphore_ui
+
+run_entrypoint_hooks init root
+run_entrypoint_hooks init user
 
 trap _term SIGTERM SIGINT # defined in hooks.sh
 
