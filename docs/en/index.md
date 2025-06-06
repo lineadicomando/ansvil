@@ -20,6 +20,7 @@ Ansvil is a lightweight and modular Docker container based on **AlmaLinux**, des
 
 ## Sections
 
+- [Prerequisites](prerequisites.md)
 - [Quick start](quick-start.md)
 - [Deployment and ports](deployment.md)
 - [Access and credentials](access.md)
