@@ -40,6 +40,8 @@ log INFO "code-server.sh loaded"
 source /usr/local/lib/entrypoint/semaphore-ui.sh
 log INFO "semaphore-ui.sh loaded"
 
+routine_init_venv
+
 routine_init_data_folder
 
 routine_init_env

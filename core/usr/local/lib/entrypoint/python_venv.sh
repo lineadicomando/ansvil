@@ -59,3 +59,14 @@ EOF
     log INFO "Block version ${V} added successfully."
   fi
 }
+
+routine_init_venv() {
+  log INFO "Init Python VEnv"
+  if [ ! -f /venv/bin/activate ]; then
+    log INFO "Creating Python VEnv"
+    python3.12 -m venv /venv
+    /venv/bin/pip install --upgrade pip
+    /venv/bin/pip install ansible ansible-lint ansible-creator
+  fi
+  fix_ownership_if_needed "/venv" "${ANSVIL_USER}:${ANSVIL_USER}"
+}
