@@ -12,7 +12,12 @@ COPY etc/profile.d/starship.sh /etc/profile.d/
 COPY etc/profile.d/aliases.sh /etc/profile.d/
 COPY etc/starship.toml /etc/
 
+COPY usr/local/bin /usr/local/bin
+COPY usr/local/lib/entrypoint /usr/local/lib/entrypoint
+COPY usr/local/share/templates/entrypoint.d /usr/local/share/templates/entrypoint.d
+
 RUN <<EOC
+# Install dependencies and tools
 dnf -y install epel-release
     dnf -y update
     dnf -y install sudo mariadb python3.12 procps-ng psmisc tar vim nmap btop htop wget \
@@ -24,25 +29,18 @@ dnf -y install epel-release
     wget -q -O /tmp/starship.sh https://starship.rs/install.sh
     chmod +x /tmp/starship.sh && /tmp/starship.sh -y
     rm -f /tmp/starship.sh
-    # Install code-server and semaphore UI
-    curl -fsSL https://code-server.dev/install.sh | sh
-    curl -L https://github.com/ansible-semaphore/semaphore/releases/download/v${SEMAPHORE_VER}/semaphore_${SEMAPHORE_VER}_linux_amd64.tar.gz | \
-    tar -xz && mv semaphore /usr/local/bin/semaphore
-    dnf clean all
-    # Create ansvil user
-    useradd -m -d ${ANSVIL_USER_HOME} -s /bin/bash -u 1000 -G wheel ${ANSVIL_USER}
-    echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-    mkdir /venv
-    chown -R ${ANSVIL_USER}:${ANSVIL_USER} /venv
-EOC
 
-USER ${ANSVIL_USER}
-WORKDIR ${ANSVIL_USER_HOME}
+# Install code-server and semaphore UI
+curl -fsSL https://code-server.dev/install.sh | sh
+curl -L https://github.com/ansible-semaphore/semaphore/releases/download/v${SEMAPHORE_VER}/semaphore_${SEMAPHORE_VER}_linux_amd64.tar.gz | \
+tar -xz && mv semaphore /usr/local/bin/semaphore
+dnf clean all
 
-RUN <<EOC
-python3.12 -m venv /venv
-/venv/bin/pip install --upgrade pip
-/venv/bin/pip install ansible ansible-lint ansible-creator
+# Create ansvil user
+useradd -m -d ${ANSVIL_USER_HOME} -s /bin/bash -u 1000 -G wheel ${ANSVIL_USER}
+echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+mkdir /venv
+chown -R ${ANSVIL_USER}:${ANSVIL_USER} /venv
 
 # Append VEnv activation directly into .bashrc
 cat <<EOF >> ${ANSVIL_USER_HOME}/.bashrc
@@ -55,11 +53,5 @@ fi
 EOF
 
 EOC
-
-USER root
-
-COPY usr/local/bin /usr/local/bin
-COPY usr/local/lib/entrypoint /usr/local/lib/entrypoint
-COPY usr/local/share/templates/entrypoint.d /usr/local/share/templates/entrypoint.d
 
 CMD ["/bin/bash", "/usr/local/bin/entrypoint.sh"]

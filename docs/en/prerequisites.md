@@ -6,27 +6,42 @@ Ansvil relies on containers to run its services. You need Docker (with the Compo
 
 This guide assumes a minimal installation of AlmaLinux/Fedora or Debian.
 
-## Install Docker on AlmaLinux or Fedora
+## Install Docker on AlmaLinux/Rocky Linux or Fedora
 
 1. Remove any existing Docker packages:
    ```bash
    sudo dnf remove docker docker-engine docker.io containerd runc
    ```
 2. Enable the official Docker repository:
+   
+   On Fedora
+
    ```bash
    sudo dnf install -y dnf-plugins-core
-   sudo dnf config-manager --add-repo https://download.docker.com/linux/$(. /etc/os-release && echo $ID)/docker-ce.repo
+   sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
    ```
-3. Install Docker Engine and the Compose plugin together with `make`:
+
+   On AlmaLinux/Rocky Linux
+   
    ```bash
-   sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin make
+   sudo dnf install -y dnf-plugins-core
+   sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
    ```
+
+3. Install Docker Engine and the Compose plugin together with `make`:
+
+   ```bash
+   sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin make git
+   ```
+
 4. Enable and start the service:
+
    ```bash
    sudo systemctl enable --now docker
    ```
 
 You can install Podman as an alternative:
+
 ```bash
 sudo dnf install podman podman-compose podman-docker
 ```
@@ -48,7 +63,7 @@ sudo dnf install podman podman-compose podman-docker
    ```
 3. Install Docker Engine, the Compose plugin and `make`:
    ```bash
-   sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin make
+   sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin make git
    ```
 4. Start the service:
    ```bash
