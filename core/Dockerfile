@@ -6,7 +6,7 @@ LABEL maintainer="alessandro.gagliano@gmail.com" \
 
 ARG ANSVIL_USER=ansvil
 ARG ANSVIL_USER_HOME=/ansvil
-ENV SEMAPHORE_VER=2.15.04
+ENV SEMAPHORE_VER=2.15.4
 
 RUN <<EOF
 
