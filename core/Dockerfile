@@ -1,18 +1,12 @@
 FROM almalinux:9.6
 
 LABEL maintainer="alessandro.gagliano@gmail.com" \
-      version="v0.1.20-beta" \
+      version="v0.1.30-beta" \
       description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
 ARG ANSVIL_USER=ansvil
 ARG ANSVIL_USER_HOME=/ansvil
-ENV SEMAPHORE_VER=2.14.12
-
-COPY etc/profile.d /etc/profile.d
-COPY etc/starship.toml /etc/
-COPY usr/local/bin /usr/local/bin
-COPY usr/local/lib/entrypoint /usr/local/lib/entrypoint
-COPY usr/local/share/templates/entrypoint.d /usr/local/share/templates/entrypoint.d
+ENV SEMAPHORE_VER=2.15.04
 
 RUN <<EOF
 
@@ -23,7 +17,7 @@ dnf -y install sudo mariadb python3.12 procps-ng psmisc tar vim nmap btop htop w
                 iproute net-tools dhcping rsync tree tmux git jq unzip iftop ncdu netcat \
                 tcpdump ipcalc iotop-c bzip2 whois pwgen bind-utils nano bash-completion \
                 policycoreutils-python-utils sshpass argon2 neovim wol libcap arp-scan \
-                make
+                make nodejs
 dnf clean all
 rm -rf /var/cache/dnf /tmp/* /var/tmp/*
 
@@ -49,5 +43,11 @@ useradd -m -d ${ANSVIL_USER_HOME} -s /bin/bash -u 1000 -G wheel ${ANSVIL_USER}
 echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 EOF
+
+COPY etc/profile.d /etc/profile.d
+COPY etc/starship.toml /etc/
+COPY usr/local/bin /usr/local/bin
+COPY usr/local/lib/entrypoint /usr/local/lib/entrypoint
+COPY usr/local/share/templates/entrypoint.d /usr/local/share/templates/entrypoint.d
 
 CMD ["/bin/bash", "/usr/local/bin/entrypoint.sh"]

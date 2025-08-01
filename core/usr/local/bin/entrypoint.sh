@@ -40,6 +40,8 @@ log INFO "code-server.sh loaded"
 source /usr/local/lib/entrypoint/semaphore-ui.sh
 log INFO "semaphore-ui.sh loaded"
 
+# === Init ===
+
 routine_init_venv
 
 routine_init_data_folder
@@ -52,9 +54,13 @@ routine_activate_python_venv
 
 routine_init_projects_folder
 
+# === Initialize services ===
+
 routine_init_code_server
 
 routine_init_semaphore_ui
+
+# === Run entrypoint hooks ===
 
 run_entrypoint_hooks init root
 run_entrypoint_hooks init user
@@ -66,7 +72,10 @@ trap _term SIGTERM SIGINT # defined in hooks.sh
 routine_start_code_server
 routine_start_semaphore_ui
 
+# === Run entrypoint hooks ===
+
 run_entrypoint_hooks start root
 run_entrypoint_hooks start user
 
+# === Wait for services to finish ===
 wait "$CODE_SERVER_PID" "$SEMAPHORE_PID"
