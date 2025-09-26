@@ -1,23 +1,24 @@
-FROM almalinux:9.6
+FROM almalinux:10
 
 LABEL maintainer="alessandro.gagliano@gmail.com" \
-      version="v0.1.31-beta" \
+      version="v0.2.00-beta" \
       description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
 ARG ANSVIL_USER=ansvil
 ARG ANSVIL_USER_HOME=/ansvil
-ENV SEMAPHORE_VER=2.15.4
+ENV SEMAPHORE_VER=2.16.19
 
 RUN <<EOF
 
 # Install dependencies and tools
 dnf -y install epel-release
 dnf -y update
-dnf -y install sudo mariadb python3.12 procps-ng psmisc tar vim nmap btop htop wget \
-                iproute net-tools dhcping rsync tree tmux git jq unzip iftop ncdu netcat \
-                tcpdump ipcalc iotop-c bzip2 whois pwgen bind-utils nano bash-completion \
-                policycoreutils-python-utils sshpass argon2 neovim wol libcap arp-scan \
+dnf -y install sudo mariadb-client-utils python3.12 procps-ng psmisc tar vim nmap btop htop wget \
+                iproute net-tools rsync tree tmux git jq unzip iftop ncdu netcat \
+                tcpdump ipcalc iotop-c bzip2 whois openssl bind-utils nano bash-completion \
+                policycoreutils-python-utils sshpass argon2 neovim net-tools iputils nmap libcap \
                 make nodejs
+
 dnf clean all
 rm -rf /var/cache/dnf /tmp/* /var/tmp/*
 

@@ -7,24 +7,41 @@ wait_for_mariadb() {
   local max_retries="${5:-30}"
   local retry_interval="${6:-2}"
   local quiet="${7:-false}"
+  local connect_timeout="${8:-2}"
 
-  if [[ "$quiet" != "true" ]]; then
-    log INFO "Waiting for MariaDB at $host:$port (user: $user)..."
+  # Verifica dipendenza
+  if ! command -v mysqladmin >/dev/null 2>&1; then
+    log ERROR "mysqladmin non trovato nel PATH."
+    return 2
   fi
 
-  for ((i=1; i<=max_retries; i++)); do
-    if mysqladmin ping -h"$host" -P"$port" -u"$user" -p"$password" --silent > /dev/null 2>&1; then
-      [[ "$quiet" != "true" ]] && log INFO "MariaDB is up and running."
+  # Normalizza numerici
+  [[ "$max_retries" =~ ^[0-9]+$ ]] || max_retries=30
+  [[ "$retry_interval" =~ ^[0-9]+$ ]] || retry_interval=2
+  [[ "$connect_timeout" =~ ^[0-9]+$ ]] || connect_timeout=2
+
+  [[ "$quiet" != "true" ]] && log INFO "Attendo MariaDB su $host:$port (user: $user)..."
+
+  # Costruisci gli argomenti in modo sicuro
+  local args=(ping --silent -h"$host" -P"$port" -u"$user" --connect-timeout="$connect_timeout")
+  if [[ -n "$password" ]]; then
+    args+=("--password=$password")   # evita -p senza argomento
+  fi
+
+  local i
+  for (( i=1; i<=max_retries; i++ )); do
+    if mysqladmin "${args[@]}" >/dev/null 2>&1; then
+      [[ "$quiet" != "true" ]] && log INFO "MariaDB è operativo."
       return 0
     fi
-    [[ "$quiet" != "true" ]] && log INFO "Attempt $i/$max_retries: MariaDB not ready, retrying in $retry_interval seconds..."
+
+    [[ "$quiet" != "true" ]] && log INFO "Tentativo $i/$max_retries: MariaDB non ancora pronto; nuovo tentativo tra ${retry_interval}s..."
     sleep "$retry_interval"
   done
 
-  log ERROR "Timeout waiting for MariaDB after $((max_retries * retry_interval)) seconds."
+  log ERROR "Timeout dopo $(( max_retries * retry_interval )) secondi in attesa di MariaDB."
   return 1
 }
-
 
 
 routine_init_semaphore_ui() {
