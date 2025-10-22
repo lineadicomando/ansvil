@@ -50,11 +50,11 @@ services:
     hostname: ansvil-proxy
     entrypoint: [ "/bin/sh", "/entrypoint.sh" ]
     volumes:
-      - ./front/reverse-proxy.conf:/etc/nginx/conf.d/default.conf:ro,z
+      - ./front/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro,z
       - ./front/entrypoint.sh:/entrypoint.sh:ro,z
       - ./front/html:/usr/share/html:z
-      - ./data/ssl/certs:/etc/ssl/certs:z
-      - ./data/ssl/private:/etc/ssl/private:z
+      - ${ANSVIL_DATA_VOLUME_PATH}/ssl/certs:/etc/ssl/certs:z
+      - ${ANSVIL_DATA_VOLUME_PATH}/ssl/private:/etc/ssl/private:z
     depends_on:
       - core
     network_mode: host
