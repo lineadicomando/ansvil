@@ -1,7 +1,7 @@
 FROM almalinux:10
 
 LABEL maintainer="alessandro.gagliano@gmail.com" \
-      version="v0.2.00-beta" \
+      version="v0.2.01-beta" \
       description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
 ARG ANSVIL_USER=ansvil
