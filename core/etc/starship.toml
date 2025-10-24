@@ -2,8 +2,8 @@
 # https://starship.rs/config/
 
 format = '''
-[┌](bright-green)[\[](bright-green)$all[\]](bright-green)
-[└>](bright-green) '''
+[┌](bold blue)[\[](bold blue)$all[\]](bold blue)
+[└>](bold blue) '''
 
 [line_break]
 disabled = true
