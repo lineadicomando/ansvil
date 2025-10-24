@@ -46,6 +46,7 @@ wait_for_mariadb() {
 
 routine_init_semaphore_ui() {
   log INFO "Init Semaphore UI Routine"
+  set_status initializing true phase semaphore-ui msg "Initializing Semaphore UI"
   # === Start Semaphore configuration ===
   SM_CONFIG_DIR="${ANSVIL_USER_HOME}/.config/semaphore"
   SM_CONFIG_FILE="${SM_CONFIG_DIR}/config.json"

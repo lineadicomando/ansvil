@@ -1,91 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ansvil Access Panel</title>
-    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
-    <link rel="alternate icon" type="image/png" href="/img/favicon.png">
-    <style>
-        /* Stile predefinito (tema chiaro) */
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f4f4f9;
-            color: #333;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ansvil Access Panel</title>
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+  <link rel="alternate icon" type="image/png" href="/img/favicon.png">
+  <style>
+    /* Base (light theme) */
+    :root { --primary:#007BFF; --primary-hover:#0056b3; --bg:#f4f4f9; --fg:#333; --accent:#ffd700; --warn-bg:#fcf8e3; --warn-bd:#f0ad4e; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 48px 16px; background: var(--bg); color: var(--fg); }
+    h1 { font-size: 2.5rem; margin: 12px 0 20px; }
+    p { font-size: 1.05rem; margin: 0 0 12px; }
+    .btn { display:inline-block; margin:10px; padding:15px 30px; font-size:20px; color:#fff; background:var(--primary);
+           border:none; border-radius:8px; text-decoration:none; cursor:pointer; transition:background-color .25s, transform .2s; }
+    .btn:hover { background:var(--primary-hover); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .wrap { max-width: 720px; margin: 0 auto; }
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
+    /* Status banner */
+    .notice { display:none; text-align:left; margin: 20px auto 24px; padding:16px; border:1px solid var(--warn-bd);
+              background:var(--warn-bg); border-radius:10px; }
+    .notice strong { display:block; margin-bottom:6px; }
+    .notice .row { display:flex; align-items:center; gap:10px; }
+    .spinner {
+      width:18px; height:18px; border-radius:50%;
+      border:3px solid rgba(0,0,0,.15); border-top-color: rgba(0,0,0,.55);
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-        }
+    .actions { display:none; }
 
-        .button {
-            display: inline-block;
-            margin: 10px;
-            padding: 15px 30px;
-            font-size: 20px;
-            color: #fff;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
+    .meta { font-size:.9rem; opacity:.8; margin-top: 8px; }
 
-        .button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
+    /* Dark theme */
+    @media (prefers-color-scheme: dark) {
+      :root { --primary:#1a73e8; --primary-hover:#1669c1; --bg:#121212; --fg:#e0e0e0; --accent:#ffd700; --warn-bg:#2a2412; --warn-bd:#8a6d3b; }
+      .spinner { border-color: rgba(255,255,255,.15); border-top-color: rgba(255,255,255,.7); }
+    }
 
-        .button:active {
-            transform: scale(0.95);
-        }
+    /* Responsive */
+    @media (max-width: 600px) {
+      .btn { width: 84%; font-size: 18px; padding: 14px 18px; }
+      .notice { padding:14px; }
+    }
 
-        /* Stile per il tema scuro */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #121212;
-                color: #e0e0e0;
-            }
-
-            h1 {
-               color: #ffd700;
-            }
-
-            .button {
-                background-color: #1a73e8;
-            }
-
-            .button:hover {
-                background-color: #1669c1;
-            }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            .button {
-                width: 80%;
-                font-size: 18px;
-                padding: 15px 20px;
-            }
-        }
-    </style>
+    /* Logo */
+    .logo { width: 150px; margin-bottom: 12px; }
+  </style>
 </head>
-
 <body>
-    <img src="/img/logo.svg" alt="Ansvil Logo" style="width: 150px; margin-bottom: 20px;">
-    <h1>Ansvil Access Panel</h1>
-    <a href="/code/" target="_blank" class="button">Code Server</a>
-    <a href="/semaphore/" target="_blank" class="button">Semaphore UI</a>    
-</body>
+  <div class="wrap">
+    <img src="/img/logo.svg" alt="Ansvil Logo" class="logo" />
+    <h1 style="color:var(--accent)">Ansvil Access Panel</h1>
 
+    <!-- Status notice -->
+    <div id="notice" class="notice" role="status" aria-live="polite">
+      <div class="row">
+        <div class="spinner" aria-hidden="true"></div>
+        <div>
+          <strong id="notice-title">Initialization in progress…</strong>
+          <div id="notice-msg">Preparing the environment. The interface will be available shortly.</div>
+          <div class="meta" id="notice-meta"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service buttons -->
+    <div id="actions" class="actions">
+      <a href="/code/" target="_blank" rel="noopener" class="btn">Code Server</a>
+      <a href="/semaphore/" target="_blank" rel="noopener" class="btn">Semaphore UI</a>
+    </div>
+
+    <noscript>
+      <p style="margin-top:24px"><strong>Warning:</strong> please enable JavaScript to check the initialization status.</p>
+    </noscript>
+  </div>
+
+  <script>
+    (function () {
+      const notice = document.getElementById('notice');
+      const actions = document.getElementById('actions');
+      const msgEl = document.getElementById('notice-msg');
+      const metaEl = document.getElementById('notice-meta');
+
+      // Initial fallback: show the notice until status is known
+      showNotice({ msg: 'Checking service status…' });
+
+      const POLL_MS = 4000;
+
+      async function fetchStatus() {
+        // Anti-cache + timeout
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), 2500);
+        try {
+          const res = await fetch('/status/state.json?cb=' + Date.now(), {
+            cache: 'no-store',
+            signal: controller.signal
+          });
+          clearTimeout(t);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return await res.json();
+        } catch (e) {
+          // If the file is not yet present or a network error occurs: return "unknown" state
+          return null;
+        }
+      }
+
+      function formatWhen() {
+        try {
+          return new Date().toLocaleString(navigator.language || 'en-US', { hour12: false });
+        } catch { return ''; }
+      }
+
+      function showNotice({ msg }) {
+        if (msg) msgEl.textContent = msg;
+        metaEl.textContent = 'Last check: ' + formatWhen();
+        notice.style.display = 'block';
+        actions.style.display = 'none';
+      }
+
+      function showActions() {
+        notice.style.display = 'none';
+        actions.style.display = 'block';
+      }
+
+      async function tick() {
+        const st = await fetchStatus();
+        // If no state available, keep showing the generic notice
+        if (!st || typeof st !== 'object') {
+          showNotice({ msg: 'Initialization in progress…' });
+          return;
+        }
+
+        const initializing = !!st.initializing;
+        const msg = st.msg || (initializing ? 'Initialization in progress…' : 'Ready');
+
+        if (initializing) {
+          showNotice({ msg });
+        } else {
+          showActions();
+        }
+      }
+
+      // Initial check + periodic polling
+      tick();
+      setInterval(tick, POLL_MS);
+    })();
+  </script>
+</body>
 </html>

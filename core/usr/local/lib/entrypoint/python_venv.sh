@@ -4,6 +4,8 @@ routine_activate_python_venv() {
 
   log INFO "Activating Python virtual environment"
   
+  set_status initializing true phase python-env msg "Activating Python VEnv"
+  
   local V="3.12"
   local block_start="# >>> VEnv activation ${V} >>>"
   local block_end="# <<< VEnv activation <<<"
@@ -63,6 +65,7 @@ EOF
 routine_init_venv() {
 
   log INFO "Init Python VEnv"
+  set_status initializing true phase python-env msg "Initializing Python VEnv"
   
   if [ ! -d /venv ]; then
     mkdir /venv
@@ -73,19 +76,10 @@ routine_init_venv() {
     log INFO "Creating Python VEnv"
     python3.12 -m venv /venv
     /venv/bin/pip install --upgrade pip
+    set_status initializing true phase ansible msg "Installing Ansible"
     /venv/bin/pip install ansible ansible-lint ansible-creator
   fi
 
   fix_ownership_if_needed "/venv" "${ANSVIL_USER}:${ANSVIL_USER}"
 
-# Append VEnv activation directly into .bashrc
-cat <<EOF >> ${ANSVIL_USER_HOME}/.bashrc
-
-# >>> VEnv activation >>>
-if [ -f /venv/bin/activate ]; then
-    source /venv/bin/activate
-fi
-# <<< VEnv activation <<<
-EOF
- 
 }

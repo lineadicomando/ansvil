@@ -1,5 +1,5 @@
 projects
-data
+data*
 .env
 Makefile.local
 docker-compose.override.yml

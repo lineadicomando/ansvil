@@ -12,9 +12,10 @@ services:
       - semaphore-db
     network_mode: host
     volumes:
-      - ${ANSVIL_DATA_VOLUME_PATH}/venv:/venv:z
       - ${ANSVIL_DATA_VOLUME_PATH}/ansvil:/ansvil:z
       - ${ANSVIL_DATA_VOLUME_PATH}/entrypoint.d:/usr/local/entrypoint.d:z
+      - python_venv:/venv:z
+      - status:/status:rw  
     environment:
       - ANSVIL_USER=ansvil
       - ANSVIL_USER_HOME=/ansvil
@@ -53,8 +54,8 @@ services:
       - ./front/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro,z
       - ./front/entrypoint.sh:/entrypoint.sh:ro,z
       - ./front/html:/usr/share/html:z
-      - ${ANSVIL_DATA_VOLUME_PATH}/ssl/certs:/etc/ssl/certs:z
-      - ${ANSVIL_DATA_VOLUME_PATH}/ssl/private:/etc/ssl/private:z
+      - ssl:/etc/ssl:z
+      - status:/usr/share/html/status:rw
     depends_on:
       - core
     network_mode: host
@@ -66,3 +67,8 @@ services:
       - SSL_O=${SSL_O}
       - SSL_CN=${SSL_CN}
     restart: unless-stopped
+
+volumes:
+  ssl:
+  status:
+  python_venv:

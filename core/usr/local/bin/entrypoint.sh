@@ -19,6 +19,9 @@ set -euo pipefail
 source /usr/local/lib/entrypoint/common.sh
 log INFO "common.sh loaded"
 
+source /usr/local/lib/entrypoint/status.sh
+log INFO "status.sh loaded"
+
 source /usr/local/lib/entrypoint/hooks.sh
 log INFO "hooks.sh loaded"
 
@@ -41,6 +44,8 @@ source /usr/local/lib/entrypoint/semaphore-ui.sh
 log INFO "semaphore-ui.sh loaded"
 
 # === Init ===
+
+routine_init_status
 
 routine_init_venv
 
@@ -76,6 +81,7 @@ routine_start_semaphore_ui
 
 run_entrypoint_hooks start root
 run_entrypoint_hooks start user
+set_status initializing false phase ready msg "Ready"
 
 # === Wait for services to finish ===
 wait "$CODE_SERVER_PID" "$SEMAPHORE_PID"
