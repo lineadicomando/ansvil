@@ -1,4 +1,4 @@
-.PHONY: default check-env status ps up down start stop restart restart-soft logs logs-% pull update init shell help root-shell
+.PHONY: default check-env status ps up down start stop restart restart-soft logs logs-% pull update init shell help root-shell cert_san_list cert_san_add cert_san_rm ch_code_pw ch_sem_pw
 
 DOCKER := $(shell command -v sudo >/dev/null 2>&1 && echo "sudo docker" || echo "docker")
 ANSVIL_USER := $(shell grep 'ARG ANSVIL_USER=' ./core/Dockerfile | cut -d'=' -f2)
@@ -73,16 +73,24 @@ init: ## Initialize .env file from .env.example
 		echo "> Passwords set. You can further customize settings by editing the .env file."; \
 	fi
 
+ch_code_pw: check-env ## Change cose-server password
+	@$(DOCKER) compose exec core /usr/local/bin/chcodpw.sh $(ARGS)
+
+ch_sem_pw: check-env ## Change Semaphore UI password
+	@$(DOCKER) compose exec core /usr/local/bin/chsempw.sh $(ARGS)
+
+cert_san_list: check-env ## List Subject Alternative Names in the main certificate
+	@$(DOCKER) compose exec front /usr/local/bin/cert_san_list.sh
+
+cert_san_add: check-env ## Add a Subject Alternative Name to the main certificate (ARGS=<dns-name>)
+	@$(DOCKER) compose exec front /usr/local/bin/cert_san_add.sh $(ARGS)
+
+cert_san_rm: check-env ## Remove a Subject Alternative Name from the main certificate (ARGS=<dns-name>)
+	@$(DOCKER) compose exec front /usr/local/bin/cert_san_rm.sh $(ARGS)
 
 shell: check-env ## Enter the container shell as the application user
 	@echo "> Opening container shell as user '$(ANSVIL_USER)'..."
 	@$(DOCKER) compose exec core sudo -u $(ANSVIL_USER) -i bash
-
-chcodpw: check-env ## Change cose-server password
-	@$(DOCKER) compose exec core /usr/local/bin/chcodpw.sh $(ARGS)
-
-chdempw: check-env ## Change Semaphore UI password
-	@$(DOCKER) compose exec core /usr/local/bin/chsempw.sh $(ARGS)
 
 root-shell: check-env ## Enter the root shell of the 'core' container
 	@echo "> Opening container shell..."

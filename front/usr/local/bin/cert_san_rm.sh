@@ -13,12 +13,21 @@ CERT_BUILD=${CERT_BUILD:-/usr/local/bin/cert_build.sh}
 NGINX_SERVICE=${NGINX_SERVICE:-nginx}
 
 # === Args validation ==========================================================
-if [[ $# -ne 1 ]]; then
+if [[ $# -gt 1 ]]; then
   echo "Usage: $(basename "$0") <dns-name>"
   exit 2
 fi
 
-TARGET_DNS=$1
+if [[ $# -eq 1 ]]; then
+  TARGET_DNS=$1
+else
+  read -r -p "Enter DNS name to remove from SAN: " TARGET_DNS
+fi
+
+if [[ -z "${TARGET_DNS:-}" ]]; then
+  echo "Error: DNS name not provided"
+  exit 2
+fi
 
 # Relaxed regex that allows wildcards and underscores (common in SANs)
 # Valid examples: example.com, sub.example.com, *.example.com, _acme-challenge.example.com

@@ -3,22 +3,31 @@ set -Eeuo pipefail
 
 source /usr/local/bin/cert_env.sh
 
-# Imposta una IFS sicura per i cicli su array/righe
+# Safe IFS for arrays/lines
 IFS=$'\n\t'
 
-# === Config / prerequisiti ====================================================
+# === Config / prerequisites ===================================================
 : "${V3_EXT:?Undefined variable V3_EXT (path to v3.ext file))}"
 
 CERT_BUILD=${CERT_BUILD:-/usr/local/bin/cert_build.sh}
 NGINX_SERVICE=${NGINX_SERVICE:-nginx}
 
-# Convalida argomenti
-if [[ $# -ne 1 ]]; then
+# === Args / interactive input =================================================
+if [[ $# -gt 1 ]]; then
   echo "Usage: $(basename "$0") <dns-name>"
   exit 2
 fi
 
-NEW_DNS=$1
+if [[ $# -eq 1 ]]; then
+  NEW_DNS=$1
+else
+  read -r -p "Enter DNS name to add to SAN: " NEW_DNS
+fi
+
+if [[ -z "${NEW_DNS:-}" ]]; then
+  echo "Error: DNS name not provided"
+  exit 2
+fi
 
 # Relaxed regex that allows wildcards and underscores (common in SANs)
 # Valid examples: example.com, sub.example.com, *.example.com, _acme-challenge.example.com
@@ -27,7 +36,7 @@ if [[ ! $NEW_DNS =~ ^(\*\.)?([_0-9a-z-]+\.)+[0-9a-z-]+$ ]]; then
   exit 3
 fi
 
-# === Backup atomico + ripristino su errori ====================================
+# === Atomic backup + restore on errors =======================================
 backup="$(mktemp "${V3_EXT}.bk.XXXXXX")"
 tmpout="$(mktemp "${V3_EXT}.tmp.XXXXXX")"
 trap 'echo "Error, restore file..."; mv -f -- "$backup" "$V3_EXT" 2>/dev/null || true; rm -f -- "$tmpout"; exit 1' ERR INT TERM

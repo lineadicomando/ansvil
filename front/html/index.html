@@ -8,7 +8,7 @@
   <link rel="alternate icon" type="image/png" href="/img/favicon.png">
   <style>
     /* Base (light theme) */
-    :root { --primary:#007BFF; --primary-hover:#0056b3; --bg:#f4f4f9; --fg:#333; --accent:#ffd700; --warn-bg:#fcf8e3; --warn-bd:#f0ad4e; }
+    :root { --primary:#007BFF; --primary-hover:#0056b3; --bg:#f4f4f9; --fg:#333; --accent:#ffd700; --warn-bg:#fcf8e3; --warn-bd:#f0ad4e; --muted:#6b7280; }
     body { font-family: Arial, sans-serif; text-align: center; padding: 48px 16px; background: var(--bg); color: var(--fg); }
     h1 { font-size: 2.5rem; margin: 12px 0 20px; }
     p { font-size: 1.05rem; margin: 0 0 12px; }
@@ -31,18 +31,66 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .actions { display:none; }
-
     .meta { font-size:.9rem; opacity:.8; margin-top: 8px; }
+
+    /* Collapsible Certificate section */
+    details.cert {
+      max-width: 720px;
+      margin: 12px auto 0;
+      text-align: center;
+    }
+    details.cert > summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      transition: background-color .2s, color .2s, transform .15s;
+    }
+    details.cert > summary:hover { background: rgba(0,0,0,.05); color: var(--fg); transform: translateY(-1px); }
+    /* Caret icon */
+    details.cert > summary::before {
+      content: '▸';
+      font-size: 0.9rem;
+      transition: transform .2s;
+      color: var(--muted);
+    }
+    details.cert[open] > summary::before { transform: rotate(90deg); color: var(--fg); }
+    /* Inner content (subtle) */
+    .cert-panel {
+      text-align: left;
+      border: 1px dashed rgba(0,0,0,.15);
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 6px;
+      background: transparent;
+    }
+    .cert-text { font-size: .95rem; opacity: .9; margin: 0 0 10px; }
+    .btn.cert {
+      background: transparent;
+      color: var(--fg);
+      border: 2px solid var(--primary);
+      padding: 12px 22px;
+      font-size:16px;
+    }
+    .btn.cert:hover { background: var(--primary); color: #fff; }
 
     /* Dark theme */
     @media (prefers-color-scheme: dark) {
-      :root { --primary:#1a73e8; --primary-hover:#1669c1; --bg:#121212; --fg:#e0e0e0; --accent:#ffd700; --warn-bg:#2a2412; --warn-bd:#8a6d3b; }
+      :root { --primary:#1a73e8; --primary-hover:#1669c1; --bg:#121212; --fg:#e0e0e0; --accent:#ffd700; --warn-bg:#2a2412; --warn-bd:#8a6d3b; --muted:#9ca3af; }
       .spinner { border-color: rgba(255,255,255,.15); border-top-color: rgba(255,255,255,.7); }
+      details.cert > summary:hover { background: rgba(255,255,255,.06); }
+      .cert-panel { border-color: rgba(255,255,255,.18); }
     }
 
     /* Responsive */
     @media (max-width: 600px) {
       .btn { width: 84%; font-size: 18px; padding: 14px 18px; }
+      .btn.cert { width: 84%; font-size: 16px; padding: 12px 16px; }
       .notice { padding:14px; }
     }
 
@@ -68,10 +116,25 @@
     </div>
 
     <!-- Service buttons -->
-    <div id="actions" class="actions">
+    <div id="actions" class="actions" aria-hidden="true">
       <a href="/code/" target="_blank" rel="noopener" class="btn">Code Server</a>
       <a href="/semaphore/" target="_blank" rel="noopener" class="btn">Semaphore UI</a>
     </div>
+
+    <!-- Collapsible Certificate (hidden by default) -->
+    <details class="cert">
+      <summary aria-controls="cert-panel" aria-expanded="false" id="cert-summary">
+        Download CA certificate
+      </summary>
+      <div id="cert-panel" class="cert-panel" role="region" aria-labelledby="cert-summary">
+        <p class="cert-text">
+          <em>Download the Ansvil CA certificate (PEM). Install this certificate in your browser or operating system to trust the service's self-signed TLS certificate and avoid "certificate not valid" warnings.</em>
+        </p>
+        <a href="/ansvil.pem" download="ansvil.pem" class="btn cert" aria-label="Download Ansvil CA certificate">
+          Download Ansvil CA certificate
+        </a>
+      </div>
+    </details>
 
     <noscript>
       <p style="margin-top:24px"><strong>Warning:</strong> please enable JavaScript to check the initialization status.</p>
@@ -119,16 +182,17 @@
         metaEl.textContent = 'Last check: ' + formatWhen();
         notice.style.display = 'block';
         actions.style.display = 'none';
+        actions.setAttribute('aria-hidden', 'true');
       }
 
       function showActions() {
         notice.style.display = 'none';
         actions.style.display = 'block';
+        actions.setAttribute('aria-hidden', 'false');
       }
 
       async function tick() {
         const st = await fetchStatus();
-        // If no state available, keep showing the generic notice
         if (!st || typeof st !== 'object') {
           showNotice({ msg: 'Initialization in progress…' });
           return;
@@ -143,6 +207,17 @@
           showActions();
         }
       }
+
+      // Keep summary aria-expanded in sync (for older UAs)
+      (function () {
+        const det = document.querySelector('details.cert');
+        const sum = document.getElementById('cert-summary');
+        if (det && sum) {
+          const sync = () => sum.setAttribute('aria-expanded', det.open ? 'true' : 'false');
+          det.addEventListener('toggle', sync);
+          sync();
+        }
+      })();
 
       // Initial check + periodic polling
       tick();
