@@ -1,13 +1,6 @@
 #!/bin/bash
 
-CERT_BASE_PATH=/etc/ssl
-ROOT_CA_KEY="${CERT_BASE_PATH}/rootCA.key"
-ROOT_CA_PEM="${CERT_BASE_PATH}/rootCA.pem"
-SERVER_CSR_CNF="${CERT_BASE_PATH}/server.csr.cnf"
-SERVER_CSR="${CERT_BASE_PATH}/server.csr"
-SERVER_KEY="${CERT_BASE_PATH}/server.key"
-SERVER_CRT="${CERT_BASE_PATH}/server.crt"
-V3_EXT="${CERT_BASE_PATH}/v3.ext"
+source /usr/local/bin/cert_env.sh
 
 SUBJECT="/C=${SSL_C:-US}/ST=${SSL_ST:-Unknown}/L=${SSL_L:-City}/O=${SSL_O:-Org}/CN=${SSL_CN:-localhost}"
 
@@ -49,8 +42,8 @@ keyUsage=digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
 subjectAltName=@alt_names
 
 [alt_names]
-DNS.1=localhost
-DNS.2=127.0.0.1
+DNS.1 = localhost
+DNS.2 = 127.0.0.1
 EOF
 fi
 
@@ -59,6 +52,6 @@ if [ ! -f "$SERVER_CSR" ] || [ ! -f "$SERVER_KEY" ]; then
 fi
 
 if [ ! -f "$SERVER_CRT" ]; then
-  # /usr/local/bin/cert_build.sh
-	openssl x509 -req -in "$SERVER_CSR" -CA "$ROOT_CA_PEM" -CAkey "$ROOT_CA_KEY" -CAcreateserial -out "$SERVER_CRT" -days ${SSL_DAYS:-182500} -sha256 -extfile "$V3_EXT"
+	/usr/local/bin/cert_build.sh
+	# openssl x509 -req -in "$SERVER_CSR" -CA "$ROOT_CA_PEM" -CAkey "$ROOT_CA_KEY" -CAcreateserial -out "$SERVER_CRT" -days ${SSL_DAYS:-182500} -sha256 -extfile "$V3_EXT"
 fi

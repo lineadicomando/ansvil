@@ -55,7 +55,7 @@ services:
       - ./front/entrypoint.sh:/entrypoint.sh:ro,z
       - ./front/html:/usr/share/html:z
       - ./front/usr/local/bin:/usr/local/bin:ro,z
-      - ssl:/etc/ssl:z
+      - ${ANSVIL_DATA_VOLUME_PATH}/cert:/etc/cert:z
       - status:/usr/share/html/status:rw
     depends_on:
       - core
@@ -70,6 +70,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  ssl:
   status:
   python_venv:
