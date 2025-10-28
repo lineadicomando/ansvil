@@ -54,6 +54,7 @@ services:
       - ./front/etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro,z
       - ./front/entrypoint.sh:/entrypoint.sh:ro,z
       - ./front/html:/usr/share/html:z
+      - ./front/usr/local/bin:/usr/local/bin:ro,z
       - ssl:/etc/ssl:z
       - status:/usr/share/html/status:rw
     depends_on:
