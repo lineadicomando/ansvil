@@ -67,6 +67,7 @@ services:
       - SSL_L=${SSL_L}
       - SSL_O=${SSL_O}
       - SSL_CN=${SSL_CN}
+      - SSL_EMAIL=${SSL_EMAIL}
     restart: unless-stopped
 
 volumes:
