@@ -28,7 +28,7 @@ C=${SSL_C:-US}
 ST=${SSL_ST:-Unknown}
 L=${SSL_L:-City}
 O=${SSL_O:-Org}
-OU=${SSL_CN:-localhost}
+OU=${SSL_CN:-OrgUni}
 emailAddress=${SSL_EMAIL:-hello@example.com}
 CN = ${SSL_CN:-localhost}
 EOF
@@ -43,7 +43,6 @@ subjectAltName=@alt_names
 
 [alt_names]
 DNS.1 = localhost
-DNS.2 = 127.0.0.1
 EOF
 fi
 
