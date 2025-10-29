@@ -17,6 +17,7 @@ services:
       - python_venv:/venv:z
       - status:/status:rw  
     environment:
+      - ANSVIL_CODE_APP_NAME=${ANSVIL_CODE_APP_NAME}
       - ANSVIL_USER=ansvil
       - ANSVIL_USER_HOME=/ansvil
       - ANSVIL_DEFAULT_PROJECTS_PATH=${ANSVIL_DEFAULT_PROJECTS_PATH}
