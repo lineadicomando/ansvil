@@ -36,7 +36,7 @@ routine_init_code_server() {
       echo '"WELCOME": "Welcome to {{app}}",'
       echo '"LOGIN_TITLE": "{{app}} Access Portal",'
       echo '"LOGIN_BELOW": "Please log in to continue",'
-      # echo '"LOGIN_PASSWORD": "",'
+      echo '"LOGIN_PASSWORD": " ",'
       echo '"PASSWORD_PLACEHOLDER": "Enter Password"'
       echo "}"
     } > "${CS_CUSTOM_STRINGS_FILE}"
