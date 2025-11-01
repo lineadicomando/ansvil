@@ -12,7 +12,7 @@ services:
       - semaphore-db
     network_mode: host
     volumes:
-      - ${ANSVIL_DATA_VOLUME_PATH}/ansvil:/ansvil:z
+      - ${ANSVIL_DATA_VOLUME_PATH}/home:/ansvil:z
       - ${ANSVIL_DATA_VOLUME_PATH}/entrypoint.d:/usr/local/entrypoint.d:z
       - python_venv:/venv:z
       - status:/status:rw  
