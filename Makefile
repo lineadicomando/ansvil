@@ -1,7 +1,7 @@
 .PHONY: default check-env status ps up down start stop restart restart-soft logs logs-% pull update init shell help root-shell cert_san_list cert_san_add cert_san_rm ch_code_pw ch_sem_pw
 
 DOCKER := $(shell command -v sudo >/dev/null 2>&1 && echo "sudo docker" || echo "docker")
-ANSVIL_USER := $(shell grep 'ARG ANSVIL_USER=' ./core/Dockerfile | cut -d'=' -f2)
+ANSVIL_USER := $(shell grep 'ANSVIL_USER=' ./.env | cut -d'=' -f2 | cut -d"'" -f2 | cut -d'"' -f2)
 
 # Optional: include development-only targets from Makefile.local
 -include Makefile.local

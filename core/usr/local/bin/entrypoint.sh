@@ -52,9 +52,9 @@ routine_init_user
 
 routine_init_status
 
-routine_init_venv
-
 routine_init_data_folder
+
+routine_init_venv
 
 routine_init_env
 
