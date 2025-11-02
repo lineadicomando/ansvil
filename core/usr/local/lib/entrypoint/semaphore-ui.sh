@@ -64,7 +64,7 @@ routine_init_semaphore_ui() {
       echo "    \"pass\": \"${SEMAPHORE_DB_PASS}\""
       echo "  },"
       echo '  "dialect": "mysql",'
-      echo "  \"tmp_path\": \"${ANSVIL_DEFAULT_PROJECTS_PATH}\","
+      echo "  \"tmp_path\": \"${ANSVIL_PROJECTS_PATH}\","
       echo '  "web_host": "/semaphore",'
       echo '  "cookie_hash": "4DOz2jNdJAg23M5u91iOolcf3jEpcoFWoOWm9zVKOUg=",'
       echo '  "cookie_encryption": "vnS+otiskwlSQ6BnAYW1UjrUfpDomf9xQ0zSUn2BU6c=",'

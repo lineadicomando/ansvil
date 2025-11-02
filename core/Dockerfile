@@ -4,9 +4,7 @@ LABEL maintainer="alessandro.gagliano@gmail.com" \
       version="v0.2.02-beta" \
       description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
-ARG ANSVIL_USER=ansvil
-ARG ANSVIL_USER_HOME=/ansvil
-ENV SEMAPHORE_VER=2.16.32
+ENV SEMAPHORE_VER=2.16.37
 
 RUN <<EOF
 
@@ -38,10 +36,6 @@ rm -rf /root/.cache
 curl -L https://github.com/ansible-semaphore/semaphore/releases/download/v${SEMAPHORE_VER}/semaphore_${SEMAPHORE_VER}_linux_amd64.tar.gz | \
 tar -xz && mv semaphore /usr/local/bin/semaphore
 rm -f semaphore_*.tar.gz
-
-# Create ansvil user
-useradd -m -d ${ANSVIL_USER_HOME} -s /bin/bash -u 1000 -G wheel ${ANSVIL_USER}
-echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 EOF
 

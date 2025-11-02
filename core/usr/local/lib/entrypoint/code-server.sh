@@ -56,7 +56,7 @@ routine_init_code_server() {
 routine_start_code_server() {
   log INFO "Starting code-server..."
 
-  su "${ANSVIL_USER}" -c "source /venv/bin/activate && code-server --app-name '${ANSVIL_CODE_APP_NAME:-Ansvil::Code}' --i18n ${CS_CUSTOM_STRINGS_FILE} ${ANSVIL_DEFAULT_PROJECTS_PATH}" &
+  su "${ANSVIL_USER}" -c "source /venv/bin/activate && code-server --app-name '${ANSVIL_CODE_APP_NAME:-Ansvil::Code}' --i18n ${CS_CUSTOM_STRINGS_FILE} ${ANSVIL_PROJECTS_PATH}" &
   CODE_SERVER_PID=$!
 
   # Verifica se il processo è partito

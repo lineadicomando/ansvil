@@ -43,7 +43,12 @@ log INFO "code-server.sh loaded"
 source /usr/local/lib/entrypoint/semaphore-ui.sh
 log INFO "semaphore-ui.sh loaded"
 
+source /usr/local/lib/entrypoint/user.sh
+log INFO "user.sh loaded"
+
 # === Init ===
+
+routine_init_user
 
 routine_init_status
 
