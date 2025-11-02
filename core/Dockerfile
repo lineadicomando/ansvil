@@ -1,7 +1,7 @@
 FROM almalinux:10
 
 LABEL maintainer="alessandro.gagliano@gmail.com" \
-      version="v0.2.02-beta" \
+      version="v0.2.03-beta" \
       description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
 ENV SEMAPHORE_VER=2.16.37
