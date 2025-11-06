@@ -46,6 +46,9 @@ log INFO "semaphore-ui.sh loaded"
 source /usr/local/lib/entrypoint/user.sh
 log INFO "user.sh loaded"
 
+source /usr/local/lib/entrypoint/sshd.sh
+log INFO "sshd.sh loaded"
+
 # === Init ===
 
 routine_init_user
@@ -70,6 +73,8 @@ routine_init_code_server
 
 routine_init_semaphore_ui
 
+routine_init_sshd
+
 # === Run entrypoint hooks ===
 
 run_entrypoint_hooks init root
@@ -81,6 +86,7 @@ trap _term SIGTERM SIGINT # defined in hooks.sh
 
 routine_start_code_server
 routine_start_semaphore_ui
+routine_start_sshd
 
 # === Run entrypoint hooks ===
 

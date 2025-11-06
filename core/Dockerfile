@@ -1,8 +1,8 @@
 FROM almalinux:10
 
 LABEL maintainer="alessandro.gagliano@gmail.com" \
-      version="v0.2.03-beta" \
-      description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
+    version="v0.2.03-beta" \
+    description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
 ENV SEMAPHORE_VER=2.16.37
 
@@ -36,6 +36,10 @@ rm -rf /root/.cache
 curl -L https://github.com/ansible-semaphore/semaphore/releases/download/v${SEMAPHORE_VER}/semaphore_${SEMAPHORE_VER}_linux_amd64.tar.gz | \
 tar -xz && mv semaphore /usr/local/bin/semaphore
 rm -f semaphore_*.tar.gz
+
+# Install SSH
+dnf -y install openssh-server
+sudo sed -i 's/^#Port 22/Port 2222/' /etc/ssh/sshd_config
 
 EOF
 
