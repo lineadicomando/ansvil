@@ -13,6 +13,26 @@ check-env: ## Ensure that the .env file exists and root or sudo is available
 	@{ [ "$$(id -u)" -eq 0 ] || command -v sudo >/dev/null 2>&1; } || \
 		{ echo "> This command requires root privileges or 'sudo' to be available."; exit 1; }
 
+init: ## Initialize .env file from .env.example
+	@if [ ! -f .env.example ]; then \
+		echo "> Error: .env.example not found."; \
+		exit 1; \
+	fi
+	@if [ -f .env ]; then \
+		echo "> .env file already exists. No action taken."; \
+	else \
+		cp .env.example .env && echo "> .env file created from .env.example."; \
+		default1=$$(grep "^SEMAPHORE_ADMIN_DEFAULT_PASSWORD=" .env.example | cut -d= -f2- | cut -d"'" -f2); \
+		default2=$$(grep "^CODE_SERVER_DEFAULT_PASSWORD=" .env.example | cut -d= -f2- | cut -d"'" -f2); \
+		read -p "Enter SEMAPHORE_ADMIN_DEFAULT_PASSWORD [$$default1]: " input1; \
+		SEMAPHORE_PASSWORD=$${input1:-$$default1}; \
+		read -p "Enter CODE_SERVER_DEFAULT_PASSWORD [$$default2]: " input2; \
+		CODE_PASSWORD=$${input2:-$$default2}; \
+		sed -i "s/^SEMAPHORE_ADMIN_DEFAULT_PASSWORD=.*/SEMAPHORE_ADMIN_DEFAULT_PASSWORD='$$SEMAPHORE_PASSWORD'/" .env; \
+		sed -i "s/^CODE_SERVER_DEFAULT_PASSWORD=.*/CODE_SERVER_DEFAULT_PASSWORD='$$CODE_PASSWORD'/" .env; \
+		echo "> Passwords set. You can further customize settings by editing the .env file."; \
+	fi
+
 ps: ## Show the status of Docker Compose services
 	@echo "> Checking Docker Compose services status..."
 	@$(DOCKER) compose ps
@@ -51,32 +71,15 @@ pull: check-env ## Pull latest Docker images
 	@echo "> Pulling Docker Compose images..."
 	@$(DOCKER) compose pull
 
-update: pull restart ## Pull and restart all services
+update: check-env pull restart ## Pull and restart all services
 
-init: ## Initialize .env file from .env.example
-	@if [ ! -f .env.example ]; then \
-		echo "> Error: .env.example not found."; \
-		exit 1; \
-	fi
-	@if [ -f .env ]; then \
-		echo "> .env file already exists. No action taken."; \
-	else \
-		cp .env.example .env && echo "> .env file created from .env.example."; \
-		default1=$$(grep "^SEMAPHORE_ADMIN_DEFAULT_PASSWORD=" .env.example | cut -d= -f2- | cut -d"'" -f2); \
-		default2=$$(grep "^CODE_SERVER_DEFAULT_PASSWORD=" .env.example | cut -d= -f2- | cut -d"'" -f2); \
-		read -p "Enter SEMAPHORE_ADMIN_DEFAULT_PASSWORD [$$default1]: " input1; \
-		SEMAPHORE_PASSWORD=$${input1:-$$default1}; \
-		read -p "Enter CODE_SERVER_DEFAULT_PASSWORD [$$default2]: " input2; \
-		CODE_PASSWORD=$${input2:-$$default2}; \
-		sed -i "s/^SEMAPHORE_ADMIN_DEFAULT_PASSWORD=.*/SEMAPHORE_ADMIN_DEFAULT_PASSWORD='$$SEMAPHORE_PASSWORD'/" .env; \
-		sed -i "s/^CODE_SERVER_DEFAULT_PASSWORD=.*/CODE_SERVER_DEFAULT_PASSWORD='$$CODE_PASSWORD'/" .env; \
-		echo "> Passwords set. You can further customize settings by editing the .env file."; \
-	fi
+passwd: ## Change user password
+	@$(DOCKER) compose exec core /bin/passwd $(ANSVIL_USER)
 
-ch_code_pw: check-env ## Change cose-server password
+code_passwd: check-env ## Change cose-server password
 	@$(DOCKER) compose exec core /usr/local/bin/chcodpw.sh $(ARGS)
 
-ch_sem_pw: check-env ## Change Semaphore UI password
+semaphoreui_passwd: check-env ## Change Semaphore UI password
 	@$(DOCKER) compose exec core /usr/local/bin/chsempw.sh $(ARGS)
 
 cert_san_list: check-env ## List Subject Alternative Names in the main certificate
