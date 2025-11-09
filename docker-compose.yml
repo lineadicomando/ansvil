@@ -17,6 +17,7 @@ services:
       - status:/status:rw
       - ssh:/etc/ssh:rw
     environment:
+      - TZ=${TZ:-UTC}
       - ANSVIL_CODE_APP_NAME=${ANSVIL_CODE_APP_NAME}
       - ANSVIL_USER=${ANSVIL_USER:-ansvil}
       - ANSVIL_USER_HOME=${ANSVIL_USER_HOME:-/ansvil}
