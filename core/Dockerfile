@@ -4,7 +4,7 @@ LABEL maintainer="alessandro.gagliano@gmail.com" \
     version="v0.2.03-beta" \
     description="Ansvil: Ansible Workstation with Semaphore UI and Code-Server on AlmaLinux"
 
-ENV SEMAPHORE_VER=2.16.37
+ENV SEMAPHORE_VER=2.16.45
 
 RUN <<EOF
 
@@ -37,8 +37,8 @@ curl -L https://github.com/ansible-semaphore/semaphore/releases/download/v${SEMA
 tar -xz && mv semaphore /usr/local/bin/semaphore
 rm -f semaphore_*.tar.gz
 
-# Install SSH
-dnf -y install openssh-server
+# Install SSH/SSHFS
+dnf -y install openssh-server sshfs
 sudo sed -i 's/^#Port 22/Port 2222/' /etc/ssh/sshd_config
 
 EOF
@@ -48,5 +48,9 @@ COPY etc/starship.toml /etc/
 COPY usr/local/bin /usr/local/bin
 COPY usr/local/lib/entrypoint /usr/local/lib/entrypoint
 COPY usr/local/share/templates/entrypoint.d /usr/local/share/templates/entrypoint.d
+# COPY assets/images/pwa-icon-192.png /usr/lib/code-server/src/browser/media/pwa-icon-192.png
+# COPY assets/images/pwa-icon-512.png /usr/lib/code-server/src/browser/media/pwa-icon-512.png
+# COPY assets/images/pwa-icon-maskable-192.png /usr/lib/code-server/src/browser/media/pwa-icon-maskable-192.png
+# COPY assets/images/pwa-icon-maskable-512.png /usr/lib/code-server/src/browser/media/pwa-icon-maskable-512.png
 
 CMD ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
