@@ -48,9 +48,12 @@ COPY etc/starship.toml /etc/
 COPY usr/local/bin /usr/local/bin
 COPY usr/local/lib/entrypoint /usr/local/lib/entrypoint
 COPY usr/local/share/templates/entrypoint.d /usr/local/share/templates/entrypoint.d
-# COPY assets/images/pwa-icon-192.png /usr/lib/code-server/src/browser/media/pwa-icon-192.png
-# COPY assets/images/pwa-icon-512.png /usr/lib/code-server/src/browser/media/pwa-icon-512.png
-# COPY assets/images/pwa-icon-maskable-192.png /usr/lib/code-server/src/browser/media/pwa-icon-maskable-192.png
-# COPY assets/images/pwa-icon-maskable-512.png /usr/lib/code-server/src/browser/media/pwa-icon-maskable-512.png
+COPY assets/images/favicon.ico /usr/lib/code-server/src/browser/media/favicon.ico
+COPY assets/images/favicon.svg /usr/lib/code-server/src/browser/media/favicon.svg
+COPY assets/images/favicon.svg /usr/lib/code-server/src/browser/media/favicon-dark-support.svg
+COPY assets/images/pwa-icon-192.png /usr/lib/code-server/src/browser/media/pwa-icon-192.png
+COPY assets/images/pwa-icon-512.png /usr/lib/code-server/src/browser/media/pwa-icon-512.png
+COPY assets/images/pwa-icon-maskable-192.png /usr/lib/code-server/src/browser/media/pwa-icon-maskable-192.png
+COPY assets/images/pwa-icon-maskable-512.png /usr/lib/code-server/src/browser/media/pwa-icon-maskable-512.png
 
 CMD ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
